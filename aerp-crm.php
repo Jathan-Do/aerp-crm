@@ -28,17 +28,16 @@ function aerp_crm_init()
 {
     // Load func dùng chung
     require_once AERP_CRM_PATH . 'includes/functions-common.php';
+    require_once AERP_CRM_PATH . '../aerp-hrm/includes/functions-common.php';
 
     // Table 
-    require_once AERP_CRM_PATH . 'includes/table/class-base-table.php';
-    require_once AERP_CRM_PATH . 'includes/table/table-customer.php';
-    require_once AERP_CRM_PATH . 'includes/table/table-lead.php';
+    require_once AERP_CRM_PATH . '../aerp-hrm/frontend/includes/table/class-frontend-table.php';
+    require_once AERP_CRM_PATH . 'includes/table/class-table-customer.php';
+    require_once AERP_CRM_PATH . 'includes/table/class-table-customer-logs.php';
 
     // Load các class cần thiết manager
     $includes = [
-        'class-customer-manager.php',
-        'class-lead-manager.php',
-        'class-settings-manager.php',
+        'class-frontend-customer-manager.php',
     ];
     foreach ($includes as $file) {
         require_once AERP_CRM_PATH . 'includes/managers/' . $file;
@@ -46,33 +45,22 @@ function aerp_crm_init()
 
     // Xử lý form và logic
     $managers = [
-        'AERP_Customer_Manager',
-        'AERP_Lead_Manager',
-        'AERP_Settings_Manager',
+        'AERP_Frontend_Customer_Manager',
     ];
     foreach ($managers as $manager) {
         if (method_exists($manager, 'handle_submit')) {
-            add_action('admin_init', [$manager, 'handle_submit']);
+            add_action('init', [$manager, 'handle_submit']);
         }
         if (method_exists($manager, 'handle_form_submit')) {
-            add_action('admin_init', [$manager, 'handle_form_submit']);
+            add_action('init', [$manager, 'handle_form_submit']);
         }
         if (method_exists($manager, 'handle_delete')) {
-            add_action('admin_init', [$manager, 'handle_delete']);
+            add_action('init', [$manager, 'handle_delete']);
+        }
+        if (method_exists($manager, 'handle_add_customer_log')) {
+            add_action('init', [$manager, 'handle_add_customer_log']);
         }
     }
-
-    // Admin menu
-    if (is_admin()) {
-        add_action('admin_menu', ['AERP_CRM_Settings_Manager', 'register_admin_menu']);
-    }
-
-    // Tải asset admin
-    add_action('admin_enqueue_scripts', function () {
-        $version = time();
-        wp_enqueue_style('aerp-crm-backend', AERP_CRM_URL . 'assets/css/backend.css', [], $version);
-        wp_enqueue_script('aerp-crm-admin', AERP_CRM_URL . 'assets/js/admin.js', ['jquery'], $version, true);
-    }, 1);
 }
 add_action('plugins_loaded', 'aerp_crm_init');
 
@@ -87,4 +75,44 @@ register_activation_hook(__FILE__, function () {
 register_deactivation_hook(__FILE__, function () {
     // Có thể thêm logic xóa database nếu cần
     flush_rewrite_rules();
-}); 
+});
+// === REWRITE RULES FOR FRONTEND DASHBOARD ===
+require_once AERP_CRM_PATH . 'includes/page-rewrite-rules.php';
+
+// Enqueue CRM specific scripts
+add_action('wp_enqueue_scripts', function () {
+    if (!is_admin()) {
+        // Enqueue the customer-form.js only on relevant pages
+        $request_uri = $_SERVER['REQUEST_URI'];
+        // Check if the current URL contains '/aerp-crm-customers' (case-insensitive)
+        // This is a direct check on the URI, which is more reliable than query vars at this stage.
+        if (preg_match('/\/aerp-crm-customers/i', $request_uri)) {
+            wp_enqueue_script('aerp-crm-customer-form', AERP_CRM_URL . 'assets/js/customer-form.js', ['jquery'], '1.0', true);
+            // Add ajaxurl and nonce to JavaScript
+            wp_localize_script('aerp-crm-customer-form', 'aerp_crm_ajax', array(
+                'ajaxurl' => admin_url('admin-ajax.php'),
+                '_wpnonce_delete_attachment' => wp_create_nonce('aerp_delete_attachment_nonce'),
+            ));
+
+            // Enqueue and localize aerp-frontend-table.js for CRM customer table
+            wp_enqueue_script('aerp-frontend-table', AERP_HRM_URL . 'assets/js/frontend-table.js', ['jquery', 'jquery-ui-dialog'], '1.0', true);
+
+            // Instantiate AERP_Frontend_Customer_Table to get column keys and option key
+            $customer_table_instance = new AERP_Frontend_Customer_Table();
+            $all_crm_column_keys = $customer_table_instance->get_column_keys();
+            $crm_hidden_columns_option_key = $customer_table_instance->get_hidden_columns_option_key();
+
+            wp_localize_script('aerp-frontend-table', 'aerp_table_ajax', array(
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'nonce'    => wp_create_nonce('aerp_save_column_preferences'), // Same nonce action as HRM
+                'all_column_keys' => $all_crm_column_keys,
+                'hidden_columns_option_key' => $crm_hidden_columns_option_key
+            ));
+        }
+    }
+}, 20); // Use a higher priority to ensure it loads after other scripts if needed
+
+
+// AJAX Hooks for Customer Attachments
+add_action('wp_ajax_aerp_delete_customer_attachment', ['AERP_Frontend_Customer_Manager', 'handle_delete_attachment_ajax']);
+add_action('wp_ajax_nopriv_aerp_delete_customer_attachment', ['AERP_Frontend_Customer_Manager', 'handle_delete_attachment_ajax']); // If non-logged in users can delete, though typically not recommended
