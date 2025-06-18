@@ -15,6 +15,17 @@ define('AERP_CRM_PATH', plugin_dir_path(__FILE__));
 define('AERP_CRM_URL', plugin_dir_url(__FILE__));
 define('AERP_CRM_VERSION', '1.0.0');
 
+add_action('admin_init', function() {
+    if (!function_exists('is_plugin_active')) {
+        include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    if (!is_plugin_active('aerp-hrm/aerp-hrm.php')) {
+        deactivate_plugins(plugin_basename(__FILE__));
+        add_action('admin_notices', function() {
+            echo '<div class="error"><p><b>AERP CRM</b> yêu cầu cài và kích hoạt <b>AERP HRM</b> trước!</p></div>';
+        });
+    }
+});
 // Kiểm tra bản Pro
 if (!function_exists('aerp_crm_is_pro')) {
     function aerp_crm_is_pro()
@@ -68,12 +79,48 @@ add_action('plugins_loaded', 'aerp_crm_init');
 register_activation_hook(__FILE__, function () {
     require_once AERP_CRM_PATH . 'install-schema.php';
     aerp_crm_install_schema();
+    // Tạo các trang mặc định với shortcode
+    $pages = [
+        [
+            'title'   => 'Khách hàng',
+            'slug'    => 'aerp-crm-customers',
+            'content' => ''
+        ],
+        [
+            'title'   => 'Dashboard khách hàng',
+            'slug'    => 'aerp-crm-dashboard',
+            'content' => ''
+        ],
+    ];
+
+    foreach ($pages as $page) {
+        // Kiểm tra theo slug
+        $existing = get_page_by_path($page['slug']);
+        if (!$existing) {
+            wp_insert_post([
+                'post_title'   => $page['title'],
+                'post_name'    => $page['slug'],
+                'post_content' => $page['content'],
+                'post_status'  => 'publish',
+                'post_type'    => 'page'
+            ]);
+        }
+    }
     flush_rewrite_rules();
 });
 
 // Xóa database khi deactivate
 register_deactivation_hook(__FILE__, function () {
-    // Có thể thêm logic xóa database nếu cần
+    $slugs = [
+        'aerp-crm-customers',
+        'aerp-crm-dashboard',
+    ];
+    foreach ($slugs as $slug) {
+        $page = get_page_by_path($slug);
+        if ($page) {
+            wp_delete_post($page->ID, true); // true = force delete
+        }
+    }
     flush_rewrite_rules();
 });
 // === REWRITE RULES FOR FRONTEND DASHBOARD ===

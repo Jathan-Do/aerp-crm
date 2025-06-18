@@ -357,7 +357,7 @@ class AERP_Frontend_Customer_Manager {
         }
 
         // Redirect back to the customer detail page
-        wp_redirect(home_url('/aerp-crm-customer/' . $customer_id));
+        wp_redirect(home_url('/aerp-crm-customers/' . $customer_id));
         exit;
     }
 

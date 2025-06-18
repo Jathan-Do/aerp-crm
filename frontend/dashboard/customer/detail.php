@@ -227,7 +227,7 @@ if ($message) {
                         </ul>
                         <?php if ($total_logs > $logs_limit) : ?>
                             <div class="text-center mt-3">
-                                <a href="<?php echo home_url('/aerp-crm-customer/' . $customer->id . '?action=logs'); ?>" class="btn btn-sm btn-outline-primary">Xem tất cả tương tác</a>
+                                <a href="<?php echo home_url('/aerp-crm-customers/' . $customer->id . '?action=logs'); ?>" class="btn btn-sm btn-outline-primary">Xem tất cả tương tác</a>
                             </div>
                         <?php endif; ?>
                     <?php else : ?>

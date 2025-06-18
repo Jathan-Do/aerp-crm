@@ -50,7 +50,7 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
      */
     protected function column_full_name($item)
     {
-        $detail_url = home_url('/aerp-crm-customer/' . $item->id);
+        $detail_url = home_url('/aerp-crm-customers/' . $item->id);
         return sprintf('<a class="text-decoration-none" href="%s">%s</a>', esc_url($detail_url), esc_html($item->full_name));
     }
 

@@ -6,7 +6,7 @@ add_action('init', function () {
     add_rewrite_rule('^aerp-crm-dashboard/?$', 'index.php?aerp_crm_dashboard=1', 'top');
     add_rewrite_rule('^aerp-categories/?$', 'index.php?aerp_categories=1', 'top');
     add_rewrite_rule('^aerp-crm-customers/?$', 'index.php?aerp_crm_page=customers', 'top');
-    add_rewrite_rule('^aerp-crm-customer/([0-9]+)/?$', 'index.php?aerp_crm_page=customer_detail&aerp_crm_customer_id=$matches[1]', 'top');
+    add_rewrite_rule('^aerp-crm-customers/([0-9]+)/?$', 'index.php?aerp_crm_page=customer_detail&aerp_crm_customer_id=$matches[1]', 'top');
 
     $rules = get_option('rewrite_rules');
     if ($rules && (!isset($rules['^aerp-crm-dashboard/?$']))) {
@@ -18,11 +18,21 @@ add_action('init', function () {
     if ($rules && !isset($rules['^aerp-crm-customers/?$'])) {
         flush_rewrite_rules();
     }
-    if ($rules && !isset($rules['^aerp-crm-customer/([0-9]+)/?$'])) {
+    if ($rules && !isset($rules['^aerp-crm-customers/([0-9]+)/?$'])) {
         flush_rewrite_rules();
     }
 });
-
+// Tắt canonical redirect cho các trang HRM ảo (refactor)
+add_action('template_redirect', function () {
+    $virtual_routes = ['aerp_crm_page'];
+    foreach ($virtual_routes as $route) {
+        // Chỉ tắt canonical cho trang customers (vì các trang khác có thể cần canonical)
+        if (get_query_var($route) === 'customers') {
+            remove_filter('template_redirect', 'redirect_canonical');
+            break;
+        }
+    }
+}, 0);
 add_filter('query_vars', function ($vars) {
     $vars[] = 'aerp_crm_dashboard';
     $vars[] = 'aerp_categories';

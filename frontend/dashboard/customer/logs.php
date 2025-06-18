@@ -47,7 +47,7 @@ ob_start();
             ?>
 
             <div class="card-body d-flex justify-content-between align-items-center mt-4">
-                <a href="<?php echo home_url('/aerp-crm-customer/' . $customer->id); ?>" class="btn btn-outline-secondary">
+                <a href="<?php echo home_url('/aerp-crm-customers/' . $customer->id); ?>" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Quay lại chi tiết khách hàng
                 </a>
                 <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-secondary">

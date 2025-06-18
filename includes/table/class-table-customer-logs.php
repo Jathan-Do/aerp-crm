@@ -24,7 +24,7 @@ class AERP_Frontend_Customer_Logs_Table extends AERP_Frontend_Table
             'per_page' => 10,
             'actions' => [], // Không có hành động chỉnh sửa/xóa trực tiếp trên logs table
             'bulk_actions' => ['delete'],
-            'base_url' => home_url('/aerp-crm-customer/' . $customer_id . '?action=logs'), // Base URL cho phân trang/tìm kiếm
+            'base_url' => home_url('/aerp-crm-customers/' . $customer_id . '?action=logs'), // Base URL cho phân trang/tìm kiếm
             'delete_item_callback' => ['AERP_Frontend_Customer_Manager', 'delete_customer_log_by_id'],
             'message_transient_key' => 'aerp_customer_log_message',
             'hidden_columns_option_key' => 'aerp_crm_customer_logs_table_hidden_columns',
