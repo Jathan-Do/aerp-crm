@@ -134,7 +134,7 @@ if ($message) {
                         <div class="card-body">
                             <?php $phones = aerp_get_customer_phones($customer->id); ?>
                             <?php if (!empty($phones)) : ?>
-                                <ul class="list-group list-group-flush">
+                                <ul class="list-group list-group-flush m-0">
                                     <?php foreach ($phones as $phone) : ?>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <div>
@@ -168,7 +168,7 @@ if ($message) {
                         <div class="card-body">
                             <?php $attachments = aerp_get_customer_attachments($customer->id); ?>
                             <?php if (!empty($attachments)) : ?>
-                                <ul class="list-group list-group-flush overflow-hidden">
+                                <ul class="list-group list-group-flush overflow-hidden m-0">
                                     <?php foreach ($attachments as $attachment) : ?>
                                         <li class="list-group-item">
                                             <a href="<?php echo esc_url($attachment->file_url); ?>" target="_blank" class="d-flex align-items-center">
@@ -213,7 +213,7 @@ if ($message) {
                     $total_logs = count(aerp_get_customer_logs($customer->id)); // Để kiểm tra xem có nhiều hơn giới hạn không
                     ?>
                     <?php if (!empty($logs)) : ?>
-                        <ul class="list-group list-group-flush">
+                        <ul class="list-group list-group-flush m-0">
                             <?php foreach ($logs as $log) : ?>
                                 <li class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center mb-1">

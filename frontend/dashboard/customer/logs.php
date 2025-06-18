@@ -19,7 +19,7 @@ if ($customer_id) {
 ob_start();
 ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Lịch sử tương tác của khách hàng: <?php echo esc_html($customer ? $customer->full_name : ''); ?>- <?php echo esc_html($customer ? $customer->customer_code : ''); ?></h2>
+    <h2 class="mb-0">Lịch sử tương tác của khách hàng: <?php echo esc_html($customer ? $customer->full_name : ''); ?> - <?php echo esc_html($customer ? $customer->customer_code : ''); ?></h2>
     <div class="user-info">
         <span class="me-2">Welcome, <?php echo esc_html($current_user->display_name); ?></span>
         <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-sm btn-outline-danger">

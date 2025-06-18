@@ -79,6 +79,7 @@ add_action('plugins_loaded', 'aerp_crm_init');
 register_activation_hook(__FILE__, function () {
     require_once AERP_CRM_PATH . 'install-schema.php';
     aerp_crm_install_schema();
+    aerp_crm_insert_sample_data();
     // Tạo các trang mặc định với shortcode
     $pages = [
         [

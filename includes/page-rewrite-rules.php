@@ -22,15 +22,10 @@ add_action('init', function () {
         flush_rewrite_rules();
     }
 });
-// Tắt canonical redirect cho các trang HRM ảo (refactor)
 add_action('template_redirect', function () {
-    $virtual_routes = ['aerp_crm_page'];
-    foreach ($virtual_routes as $route) {
-        // Chỉ tắt canonical cho trang customers (vì các trang khác có thể cần canonical)
-        if (get_query_var($route) === 'customers') {
-            remove_filter('template_redirect', 'redirect_canonical');
-            break;
-        }
+    $page = get_query_var('aerp_crm_page');
+    if (in_array($page, ['customers', 'customer_detail'], true)) {
+        remove_filter('template_redirect', 'redirect_canonical');
     }
 }, 0);
 add_filter('query_vars', function ($vars) {
@@ -100,8 +95,8 @@ add_action('template_redirect', function () {
         }
 
         if ($template_name) {
-            set_query_var('aerp_crm_template_name', $template_name);
-            error_log('AERP_CRM_REWRITE: Setting aerp_crm_template_name to: ' . $template_name . ' for page: ' . $aerp_crm_page);
+            include AERP_CRM_PATH . 'frontend/dashboard/' . $template_name;
+            exit;
         }
     }
 });
@@ -113,7 +108,6 @@ add_filter('template_include', function ($template) {
         if (file_exists($new_template)) {
             return $new_template;
         }
-        error_log('AERP_CRM_REWRITE: Custom template not found: ' . $new_template);
     }
     return $template;
 });

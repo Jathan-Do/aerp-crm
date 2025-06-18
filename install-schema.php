@@ -74,3 +74,59 @@ function aerp_crm_install_schema()
         dbDelta($sql);
     }
 } 
+
+function aerp_crm_insert_sample_data() {
+    global $wpdb;
+
+    $customers = [];
+    for ($i = 1; $i <= 15; $i++) {
+        $wpdb->insert("{$wpdb->prefix}aerp_crm_customers", [
+            'customer_code'   => 'CUST' . str_pad($i, 4, '0', STR_PAD_LEFT),
+            'full_name'       => "Khách hàng $i",
+            'company_name'    => "Công ty $i",
+            'tax_code'        => "MST$i",
+            'address'         => "Địa chỉ $i",
+            'email'           => "khach$i@example.com",
+            'customer_type'   => ($i % 2 === 0 ? 'doanh_nghiep' : 'ca_nhan'),
+            'status'          => ($i % 3 === 0 ? 'inactive' : 'active'),
+            'assigned_to'     => 1,
+            'note'            => "Ghi chú khách hàng $i",
+        ]);
+        $customers[] = $wpdb->insert_id;
+    }
+
+    foreach ($customers as $id) {
+        // Phones
+        for ($j = 1; $j <= 2; $j++) {
+            $wpdb->insert("{$wpdb->prefix}aerp_crm_customer_phones", [
+                'customer_id'   => $id,
+                'phone_number'  => "090$i$j$i$j",
+                'is_primary'    => $j === 1,
+                'note'          => "Số $j của KH$id",
+            ]);
+        }
+
+        // Logs
+        $wpdb->insert("{$wpdb->prefix}aerp_crm_logs", [
+            'customer_id'      => $id,
+            'interaction_type' => 'gọi điện',
+            'content'          => "Đã gọi tư vấn lần đầu cho KH$id",
+            'interacted_by'    => 1,
+        ]);
+        $wpdb->insert("{$wpdb->prefix}aerp_crm_logs", [
+            'customer_id'      => $id,
+            'interaction_type' => 'email',
+            'content'          => "Gửi báo giá lần 2 cho KH$id",
+            'interacted_by'    => 1,
+        ]);
+
+        // Attachments
+        $wpdb->insert("{$wpdb->prefix}aerp_crm_attachments", [
+            'customer_id' => $id,
+            'file_name'   => "hopdong_khach_$id.pdf",
+            'file_url'    => "https://example.com/uploads/hopdong_khach_$id.pdf",
+            'file_type'   => 'pdf',
+            'uploaded_by'=> 1,
+        ]);
+    }
+}
