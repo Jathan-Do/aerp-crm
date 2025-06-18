@@ -306,12 +306,10 @@ class AERP_Frontend_Customer_Manager {
 
     public static function handle_add_customer_log() {
         if (!isset($_POST['aerp_add_customer_log'])) {
-            error_log('AERP_CRM: aerp_add_customer_log not set, returning.');
             return;
         }
 
         if (!wp_verify_nonce($_POST['aerp_add_customer_log_nonce'], 'aerp_add_customer_log_action')) {
-            error_log('AERP_CRM: Nonce verification failed for customer log.');
             wp_die('Invalid nonce for customer log.');
         }
 
