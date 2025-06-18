@@ -35,7 +35,14 @@ function aerp_crm_install_schema()
         status ENUM('active','inactive') DEFAULT 'active',
         assigned_to BIGINT,
         note TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_customer_code (customer_code),
+        INDEX idx_full_name (full_name),
+        INDEX idx_company_name (company_name),
+        INDEX idx_customer_type (customer_type),
+        INDEX idx_status (status),
+        INDEX idx_assigned_to (assigned_to),
+        INDEX idx_created_at (created_at)
     ) $charset_collate;";
 
     // 2. Số điện thoại khách hàng
@@ -45,7 +52,9 @@ function aerp_crm_install_schema()
         phone_number VARCHAR(20),
         is_primary BOOLEAN DEFAULT false,
         note VARCHAR(255),
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_customer_id (customer_id),
+        INDEX idx_phone_number (phone_number)
     ) $charset_collate;";
 
     // 3. Tương tác
@@ -55,7 +64,11 @@ function aerp_crm_install_schema()
         interaction_type VARCHAR(50),
         content TEXT,
         interacted_by BIGINT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_customer_id (customer_id),
+        INDEX idx_interaction_type (interaction_type),
+        INDEX idx_interacted_by (interacted_by),
+        INDEX idx_created_at (created_at)
     ) $charset_collate;";
 
     // 4. File đính kèm
@@ -66,7 +79,10 @@ function aerp_crm_install_schema()
         file_url TEXT,
         file_type VARCHAR(50),
         uploaded_by BIGINT,
-        uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        uploaded_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_customer_id (customer_id),
+        INDEX idx_uploaded_by (uploaded_by),
+        INDEX idx_uploaded_at (uploaded_at)
     ) $charset_collate;";
 
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
