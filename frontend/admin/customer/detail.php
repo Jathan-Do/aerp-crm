@@ -63,28 +63,13 @@ if ($message) {
                         <label class="fw-bold form-label text-muted small mb-1">Loại khách hàng</label>
                         <p class="mb-0">
                             <?php
-                            $customer_type_colors = [
-                                'individual' => 'primary',
-                                'company' => 'info',
-                                'vip' => 'warning',
-                                'reseller' => 'dark',
-                                'partner' => 'secondary',
-                            ];
-                            $badge_color = $customer_type_colors[$customer->customer_type] ?? 'secondary'; // Default to secondary if not found
-
-                            // Define display names for customer types
-                            $customer_type_display_names = [
-                                'individual' => 'Cá nhân',
-                                'company' => 'Công ty',
-                                'vip' => 'VIP',
-                                'reseller' => 'Đại lý',
-                                'partner' => 'Đối tác',
-                            ];
-                            $display_customer_type = $customer_type_display_names[$customer->customer_type] ?? esc_html($customer->customer_type);
+                            $type = aerp_get_customer_type($customer->customer_type_id);
+                            if ($type) {
+                                echo '<span class="badge bg-' . esc_attr($type->color) . '">' . esc_html($type->name) . '</span>';
+                            } else {
+                                echo '<span class="badge bg-secondary">Không xác định</span>';
+                            }
                             ?>
-                            <span class="badge bg-<?php echo esc_attr($badge_color); ?>">
-                                <?php echo esc_html($display_customer_type); ?>
-                            </span>
                         </p>
                     </div>
 

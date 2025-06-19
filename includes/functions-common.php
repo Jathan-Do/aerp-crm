@@ -109,6 +109,21 @@ function aerp_get_customer_assigned_name($assigned_to)
     return '';
 }
 
+/**
+ * Lấy danh sách loại khách hàng
+ */
+function aerp_get_customer_types() {
+    global $wpdb;
+    return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}aerp_crm_customer_types ORDER BY name ASC");
+}
+
+/**
+ * Lấy loại khách hàng theo ID
+ */
+function aerp_get_customer_type($type_id) {
+    global $wpdb;
+    return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}aerp_crm_customer_types WHERE id = %d", $type_id));
+}
 
 // Allow plugin modules to apply filters
 add_filter('aerp_get_customers', 'aerp_get_customers');

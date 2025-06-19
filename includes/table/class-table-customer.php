@@ -59,14 +59,13 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
      */
     protected function column_customer_type($item)
     {
-        $types = [
-            'individual' => '<span class="badge bg-primary">Cá nhân</span>',
-            'company' => '<span class="badge bg-info">Công ty</span>',
-            'vip' => '<span class="badge bg-warning">VIP</span>',
-            'reseller' => '<span class="badge bg-dark">Đại lý</span>',
-            'partner' => '<span class="badge bg-secondary">Đối tác</span>',
-        ];
-        return $types[$item->customer_type] ?? esc_html($item->customer_type);
+        global $wpdb;
+        $type = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}aerp_crm_customer_types WHERE id = %d", $item->customer_type_id));
+        if ($type) {
+            $color = !empty($type->color) ? $type->color : 'secondary';
+            return '<span class="badge bg-' . esc_attr($color) . '">' . esc_html($type->name) . '</span>';
+        }
+        return '<span class="badge bg-secondary">Không xác định</span>';
     }
 
     /**

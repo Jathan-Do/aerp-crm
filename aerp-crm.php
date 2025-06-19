@@ -45,10 +45,12 @@ function aerp_crm_init()
     require_once AERP_CRM_PATH . '../aerp-hrm/frontend/includes/table/class-frontend-table.php';
     require_once AERP_CRM_PATH . 'includes/table/class-table-customer.php';
     require_once AERP_CRM_PATH . 'includes/table/class-table-customer-logs.php';
+    require_once AERP_CRM_PATH . 'includes/table/class-table-customer-type.php';
 
     // Load các class cần thiết manager
     $includes = [
         'class-frontend-customer-manager.php',
+        'class-frontend-customer-type-manager.php',
     ];
     foreach ($includes as $file) {
         require_once AERP_CRM_PATH . 'includes/managers/' . $file;
@@ -57,6 +59,7 @@ function aerp_crm_init()
     // Xử lý form và logic
     $managers = [
         'AERP_Frontend_Customer_Manager',
+        'AERP_Frontend_Customer_Type_Manager',
     ];
     foreach ($managers as $manager) {
         if (method_exists($manager, 'handle_submit')) {
@@ -79,49 +82,11 @@ add_action('plugins_loaded', 'aerp_crm_init');
 register_activation_hook(__FILE__, function () {
     require_once AERP_CRM_PATH . 'install-schema.php';
     aerp_crm_install_schema();
-    aerp_crm_insert_sample_data();
-    // Tạo các trang mặc định với shortcode
-    $pages = [
-        [
-            'title'   => 'Khách hàng',
-            'slug'    => 'aerp-crm-customers',
-            'content' => ''
-        ],
-        [
-            'title'   => 'Dashboard khách hàng',
-            'slug'    => 'aerp-crm-dashboard',
-            'content' => ''
-        ],
-    ];
-
-    foreach ($pages as $page) {
-        // Kiểm tra theo slug
-        $existing = get_page_by_path($page['slug']);
-        if (!$existing) {
-            wp_insert_post([
-                'post_title'   => $page['title'],
-                'post_name'    => $page['slug'],
-                'post_content' => $page['content'],
-                'post_status'  => 'publish',
-                'post_type'    => 'page'
-            ]);
-        }
-    }
     flush_rewrite_rules();
 });
 
 // Xóa database khi deactivate
 register_deactivation_hook(__FILE__, function () {
-    $slugs = [
-        'aerp-crm-customers',
-        'aerp-crm-dashboard',
-    ];
-    foreach ($slugs as $slug) {
-        $page = get_page_by_path($slug);
-        if ($page) {
-            wp_delete_post($page->ID, true); // true = force delete
-        }
-    }
     flush_rewrite_rules();
 });
 // === REWRITE RULES FOR FRONTEND DASHBOARD ===

@@ -38,7 +38,7 @@ ob_start();
             <input type="hidden" name="customer_id" value="<?php echo esc_attr($edit_id); ?>">
             <div class="mb-3">
                 <label for="customer_code" class="form-label">Mã khách hàng</label>
-                <input type="text" class="form-control" id="customer_code" name="customer_code" value="<?php echo esc_attr($editing->customer_code); ?>">
+                <input type="text" class="form-control" id="customer_code" name="customer_code" value="<?php echo esc_attr($editing->customer_code); ?>" readonly>
             </div>
             <div class="mb-3">
                 <label for="full_name" class="form-label">Họ và tên</label>
@@ -117,13 +117,15 @@ ob_start();
                 </div>
             </div>
             <div class="mb-3">
-                <label for="customer_type" class="form-label">Loại khách hàng</label>
-                <select class="form-select" id="customer_type" name="customer_type">
-                    <option value="individual" <?php selected($editing->customer_type, 'individual'); ?>>Cá nhân</option>
-                    <option value="company" <?php selected($editing->customer_type, 'company'); ?>>Công ty</option>
-                    <option value="vip" <?php selected($editing->customer_type, 'vip'); ?>>VIP</option>
-                    <option value="reseller" <?php selected($editing->customer_type, 'reseller'); ?>>Đại lý</option>
-                    <option value="partner" <?php selected($editing->customer_type, 'partner'); ?>>Đối tác</option>
+                <label for="customer_type_id" class="form-label">Loại khách hàng</label>
+                <select class="form-select" id="customer_type_id" name="customer_type_id">
+                    <option value="">-- Chọn loại khách hàng --</option>
+                    <?php
+                    $customer_types = aerp_get_customer_types();
+                    foreach ($customer_types as $type) {
+                        printf('<option value="%s"%s>%s</option>', esc_attr($type->id), selected($editing->customer_type_id, $type->id, false), esc_html($type->name));
+                    }
+                    ?>
                 </select>
             </div>
             <div class="mb-3">

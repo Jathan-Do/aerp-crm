@@ -20,13 +20,25 @@ class AERP_Frontend_Customer_Manager {
 
         $id = isset($_POST['customer_id']) ? absint($_POST['customer_id']) : 0;
         $customer_id = 0; // Initialize customer_id
-        $customer_code = sanitize_text_field($_POST['customer_code']);
+        // Sinh mã khách hàng tự động nếu thêm mới
+        if (!$id) {
+            $max_code = $wpdb->get_var("SELECT customer_code FROM $table WHERE customer_code LIKE 'KH-%' ORDER BY id DESC LIMIT 1");
+            if (preg_match('/KH-(\\d+)/', $max_code, $matches)) {
+                $next_number = intval($matches[1]) + 1;
+            } else {
+                $next_number = 1;
+            }
+            $customer_code = 'KH-' . $next_number;
+        } else {
+            // Khi sửa giữ nguyên mã cũ
+            $customer_code = sanitize_text_field($_POST['customer_code']);
+        }
         $full_name = sanitize_text_field($_POST['full_name']);
         $company_name = sanitize_text_field($_POST['company_name']);
         $tax_code = sanitize_text_field($_POST['tax_code']);
         $address = sanitize_textarea_field($_POST['address']);
         $email = sanitize_email($_POST['email']);
-        $customer_type = sanitize_text_field($_POST['customer_type']);
+        $customer_type_id = isset($_POST['customer_type_id']) ? absint($_POST['customer_type_id']) : 0;
         $status = sanitize_text_field($_POST['status']);
         $assigned_to = absint($_POST['assigned_to']);
         $note = sanitize_textarea_field($_POST['note']);
@@ -38,7 +50,7 @@ class AERP_Frontend_Customer_Manager {
             'tax_code' => $tax_code,
             'address' => $address,
             'email' => $email,
-            'customer_type' => $customer_type,
+            'customer_type_id' => $customer_type_id,
             'status' => $status,
             'assigned_to' => $assigned_to,
             'note' => $note,
@@ -51,7 +63,7 @@ class AERP_Frontend_Customer_Manager {
             '%s', // tax_code
             '%s', // address
             '%s', // email
-            '%s', // customer_type
+            '%d', // customer_type_id
             '%s', // status
             '%d', // assigned_to
             '%s', // note

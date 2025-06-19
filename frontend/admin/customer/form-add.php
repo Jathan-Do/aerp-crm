@@ -27,7 +27,18 @@ ob_start();
             <?php wp_nonce_field('aerp_save_customer_action', 'aerp_save_customer_nonce'); ?>
             <div class="mb-3">
                 <label for="customer_code" class="form-label">Mã khách hàng</label>
-                <input type="text" class="form-control" id="customer_code" name="customer_code">
+                <?php
+                global $wpdb;
+                $table = $wpdb->prefix . 'aerp_crm_customers';
+                $max_code = $wpdb->get_var("SELECT customer_code FROM $table WHERE customer_code LIKE 'KH-%' ORDER BY id DESC LIMIT 1");
+                if (preg_match('/KH-(\\d+)/', $max_code, $matches)) {
+                    $next_number = intval($matches[1]) + 1;
+                } else {
+                    $next_number = 1;
+                }
+                $next_customer_code = 'KH-' . $next_number;
+                ?>
+                <input type="text" class="form-control" id="customer_code" name="customer_code" value="<?php echo esc_attr($next_customer_code); ?>" readonly>
             </div>
             <div class="mb-3">
                 <label for="full_name" class="form-label">Họ và tên</label>
@@ -72,13 +83,15 @@ ob_start();
             </div>
 
             <div class="mb-3">
-                <label for="customer_type" class="form-label">Loại khách hàng</label>
-                <select class="form-select" id="customer_type" name="customer_type">
-                    <option value="individual">Cá nhân</option>
-                    <option value="company">Công ty</option>
-                    <option value="vip">VIP</option>
-                    <option value="reseller">Đại lý</option>
-                    <option value="partner">Đối tác</option>
+                <label for="customer_type_id" class="form-label">Loại khách hàng</label>
+                <select class="form-select" id="customer_type_id" name="customer_type_id">
+                    <option value="">-- Chọn loại khách hàng --</option>
+                    <?php
+                    $customer_types = aerp_get_customer_types();
+                    foreach ($customer_types as $type) {
+                        printf('<option value="%s">%s</option>', esc_attr($type->id), esc_html($type->name));
+                    }
+                    ?>
                 </select>
             </div>
             <div class="mb-3">

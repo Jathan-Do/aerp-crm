@@ -7,6 +7,7 @@ add_action('init', function () {
     add_rewrite_rule('^aerp-categories/?$', 'index.php?aerp_categories=1', 'top');
     add_rewrite_rule('^aerp-crm-customers/?$', 'index.php?aerp_crm_page=customers', 'top');
     add_rewrite_rule('^aerp-crm-customers/([0-9]+)/?$', 'index.php?aerp_crm_page=customer_detail&aerp_crm_customer_id=$matches[1]', 'top');
+    add_rewrite_rule('^aerp-crm-customer-types/?$', 'index.php?aerp_crm_page=customer_types', 'top');
 
     $rules = get_option('rewrite_rules');
     if ($rules && (!isset($rules['^aerp-crm-dashboard/?$']))) {
@@ -21,10 +22,13 @@ add_action('init', function () {
     if ($rules && !isset($rules['^aerp-crm-customers/([0-9]+)/?$'])) {
         flush_rewrite_rules();
     }
+    if ($rules && !isset($rules['^aerp-crm-customer-types/?$'])) {
+        flush_rewrite_rules();
+    }
 });
 add_action('template_redirect', function () {
     $page = get_query_var('aerp_crm_page');
-    if (in_array($page, ['customers', 'customer_detail'], true)) {
+    if (in_array($page, ['customers', 'customer_detail', 'customer_types'], true)) {
         remove_filter('template_redirect', 'redirect_canonical');
     }
 }, 0);
@@ -39,6 +43,7 @@ add_filter('query_vars', function ($vars) {
     $vars[] = 's';
     $vars[] = 'orderby';
     $vars[] = 'order';
+    $vars[] = 'aerp_crm_customer_type_id';
     return $vars;
 });
 
@@ -92,10 +97,26 @@ add_action('template_redirect', function () {
             case 'customer_logs':
                 $template_name = 'customer/logs.php';
                 break;
+            case 'customer_types':
+                switch ($action_from_get) {
+                    case 'add':
+                        $template_name = 'customer-type/form-add.php';
+                        break;
+                    case 'edit':
+                        $template_name = 'customer-type/form-edit.php';
+                        break;
+                    case 'delete':
+                        AERP_Frontend_Customer_Type_Manager::handle_single_delete();
+                        return;
+                    default:
+                        $template_name = 'customer-type/list.php';
+                        break;
+                }
+                break;
         }
 
         if ($template_name) {
-            include AERP_CRM_PATH . 'frontend/dashboard/' . $template_name;
+            include AERP_CRM_PATH . 'frontend/admin/' . $template_name;
             exit;
         }
     }
@@ -104,7 +125,7 @@ add_action('template_redirect', function () {
 add_filter('template_include', function ($template) {
     $aerp_crm_template_name = get_query_var('aerp_crm_template_name');
     if ($aerp_crm_template_name) {
-        $new_template = AERP_CRM_PATH . 'frontend/dashboard/' . $aerp_crm_template_name;
+        $new_template = AERP_CRM_PATH . 'frontend/admin/' . $aerp_crm_template_name;
         if (file_exists($new_template)) {
             return $new_template;
         }
