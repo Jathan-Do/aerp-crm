@@ -11,9 +11,9 @@ if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
 
 ob_start();
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2>Thêm khách hàng mới</h2>
-    <div class="user-info">
+    <div class="user-info text-end">
         Welcome, <?php echo esc_html($current_user->display_name); ?>
         <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-sm btn-outline-danger ms-2">
             <i class="fas fa-sign-out-alt"></i> Logout
@@ -25,105 +25,85 @@ ob_start();
     <div class="card-body">
         <form method="post" enctype="multipart/form-data">
             <?php wp_nonce_field('aerp_save_customer_action', 'aerp_save_customer_nonce'); ?>
-            <div class="mb-3">
-                <label for="customer_code" class="form-label">Mã khách hàng</label>
-                <?php
-                global $wpdb;
-                $table = $wpdb->prefix . 'aerp_crm_customers';
-                $max_code = $wpdb->get_var("SELECT customer_code FROM $table WHERE customer_code LIKE 'KH-%' ORDER BY id DESC LIMIT 1");
-                if (preg_match('/KH-(\\d+)/', $max_code, $matches)) {
-                    $next_number = intval($matches[1]) + 1;
-                } else {
-                    $next_number = 1;
-                }
-                $next_customer_code = 'KH-' . $next_number;
-                ?>
-                <input type="text" class="form-control" id="customer_code" name="customer_code" value="<?php echo esc_attr($next_customer_code); ?>" readonly>
-            </div>
-            <div class="mb-3">
-                <label for="full_name" class="form-label">Họ và tên</label>
-                <input type="text" class="form-control" id="full_name" name="full_name" required>
-            </div>
-            <div class="mb-3">
-                <label for="company_name" class="form-label">Tên công ty</label>
-                <input type="text" class="form-control" id="company_name" name="company_name">
-            </div>
-            <div class="mb-3">
-                <label for="tax_code" class="form-label">Mã số thuế</label>
-                <input type="text" class="form-control" id="tax_code" name="tax_code">
-            </div>
-            <div class="mb-3">
-                <label for="address" class="form-label">Địa chỉ</label>
-                <textarea class="form-control" id="address" name="address" rows="3"></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email">
-            </div>
-            <!-- Phone Numbers Section -->
-            <div class="mb-3">
-                <label class="form-label">Số điện thoại</label>
-                <div id="phone-numbers-container">
-                    <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="phone_numbers[0][number]" placeholder="Số điện thoại">
-                        <div class="input-group-text">
-                            <input class="form-check-input border-secondary mt-0" type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính
-                        </div>
-                        <input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">
-                        <button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>
-                    </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="full_name" class="form-label">Họ và tên</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required>
                 </div>
-                <button type="button" class="btn btn-secondary mt-2" id="add-phone-field">Thêm số điện thoại</button>
-            </div>
-
-            <!-- Attachments Section -->
-            <div class="mb-3">
-                <label for="attachments" class="form-label">File đính kèm</label>
-                <input type="file" class="form-control" id="attachments" name="attachments[]" multiple>
-            </div>
-
-            <div class="mb-3">
-                <label for="customer_type_id" class="form-label">Loại khách hàng</label>
-                <select class="form-select" id="customer_type_id" name="customer_type_id">
-                    <option value="">-- Chọn loại khách hàng --</option>
-                    <?php
-                    $customer_types = aerp_get_customer_types();
-                    foreach ($customer_types as $type) {
-                        printf('<option value="%s">%s</option>', esc_attr($type->id), esc_html($type->name));
-                    }
-                    ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="status" class="form-label">Trạng thái</label>
-                <select class="form-select" id="status" name="status">
-                    <option value="active">Hoạt động</option>
-                    <option value="inactive">Không hoạt động</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="assigned_to" class="form-label">Người phụ trách</label>
-                <select class="form-select" id="assigned_to" name="assigned_to">
-                    <option value="">-- Chọn nhân viên --</option>
-                    <?php
-                    $employees = aerp_get_employees_with_location(); // Lấy danh sách nhân viên
-                    foreach ($employees as $employee) {
-                        $display_name = esc_html($employee->full_name);
-                        if (!empty($employee->work_location_name)) {
-                            $display_name .= ' - ' . esc_html($employee->work_location_name);
+                <div class="col-md-6 mb-3">
+                    <label for="company_name" class="form-label">Tên công ty</label>
+                    <input type="text" class="form-control" id="company_name" name="company_name">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="tax_code" class="form-label">Mã số thuế</label>
+                    <input type="text" class="form-control" id="tax_code" name="tax_code">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email">
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="address" class="form-label">Địa chỉ</label>
+                    <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                </div>
+                <div class="col-12 mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <div id="phone-numbers-container">
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" name="phone_numbers[0][number]" placeholder="Số điện thoại">
+                            <div class="input-group-text">
+                                <input class="form-check-input border-secondary mt-0" type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính
+                            </div>
+                            <input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">
+                            <button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-secondary mt-2" id="add-phone-field">Thêm số điện thoại</button>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="attachments" class="form-label">File đính kèm</label>
+                    <input type="file" class="form-control" id="attachments" name="attachments[]" multiple>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="customer_type_id" class="form-label">Loại khách hàng</label>
+                    <select class="form-select" id="customer_type_id" name="customer_type_id">
+                        <?php
+                        $customer_types = aerp_get_customer_types();
+                        aerp_safe_select_options($customer_types, '', 'id', 'name', true);
+                        ?>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="status" class="form-label">Trạng thái</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="active">Hoạt động</option>
+                        <option value="inactive">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="assigned_to" class="form-label">Người phụ trách</label>
+                    <select class="form-select" id="assigned_to" name="assigned_to">
+                        <option value="">-- Chọn nhân viên --</option>
+                        <?php
+                        $employees = aerp_get_employees_with_location();
+                        foreach ($employees as $employee) {
+                            $display_name = esc_html($employee->full_name);
+                            if (!empty($employee->work_location_name)) {
+                                $display_name .= ' - ' . esc_html($employee->work_location_name);
+                            }
+                            printf(
+                                '<option value="%s">%s</option>',
+                                esc_attr($employee->user_id),
+                                $display_name
+                            );
                         }
-                        printf(
-                            '<option value="%s">%s</option>',
-                            esc_attr($employee->user_id), // Giả sử user_id là ID cần lưu
-                            $display_name
-                        );
-                    }
-                    ?>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="note" class="form-label">Ghi chú</label>
-                <textarea class="form-control" id="note" name="note" rows="3"></textarea>
+                        ?>
+                    </select>
+                </div>
+                <div class="col-12 mb-3">
+                    <label for="note" class="form-label">Ghi chú</label>
+                    <textarea class="form-control" id="note" name="note" rows="2"></textarea>
+                </div>
             </div>
             <div class="d-flex gap-2">
                 <button type="submit" name="aerp_save_customer" class="btn btn-primary">Thêm mới</button>
@@ -135,4 +115,4 @@ ob_start();
 <?php
 $content = ob_get_clean();
 $title = 'Thêm khách hàng mới';
-include(AERP_HRM_PATH . 'frontend/dashboard/layout.php'); 
+include(AERP_HRM_PATH . 'frontend/dashboard/layout.php');

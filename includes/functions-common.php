@@ -36,7 +36,6 @@ function aerp_get_customer_logs($customer_id)
         $customer_id
     ));
 }
-
 /**
  * Lấy danh sách tương tác của khách hàng với giới hạn và offset (dùng cho phân trang)
  */
@@ -94,7 +93,7 @@ function aerp_get_customer_primary_phone($customer_id)
 function aerp_get_customer_assigned_name($assigned_to)
 {
     if (!$assigned_to) return '';
-    
+
     $employee = aerp_get_employee_by_user_id($assigned_to);
     if ($employee) {
         $display_name = $employee->full_name;
@@ -112,7 +111,8 @@ function aerp_get_customer_assigned_name($assigned_to)
 /**
  * Lấy danh sách loại khách hàng
  */
-function aerp_get_customer_types() {
+function aerp_get_customer_types()
+{
     global $wpdb;
     return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}aerp_crm_customer_types ORDER BY name ASC");
 }
@@ -120,9 +120,29 @@ function aerp_get_customer_types() {
 /**
  * Lấy loại khách hàng theo ID
  */
-function aerp_get_customer_type($type_id) {
+function aerp_get_customer_type($type_id)
+{
     global $wpdb;
     return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}aerp_crm_customer_types WHERE id = %d", $type_id));
+}
+
+/**
+ * Lấy danh sách nhân viên phụ trách (dùng cho filter)
+ */
+function aerp_get_assigned_employees()
+{
+    global $wpdb;
+    // Lấy các user_id đã từng được gán phụ trách khách hàng
+    $user_ids = $wpdb->get_col("SELECT DISTINCT assigned_to FROM {$wpdb->prefix}aerp_crm_customers WHERE assigned_to IS NOT NULL AND assigned_to != ''");
+    if (empty($user_ids)) return [];
+    $employees = [];
+    foreach ($user_ids as $uid) {
+        $employees[] = (object)[
+            'user_id' => $uid,
+            'full_name' => aerp_get_customer_assigned_name($uid)
+        ];
+    }
+    return $employees;
 }
 
 // Allow plugin modules to apply filters
@@ -131,3 +151,19 @@ add_filter('aerp_get_customer', 'aerp_get_customer');
 add_filter('aerp_get_customer_logs', 'aerp_get_customer_logs');
 add_filter('aerp_get_customer_attachments', 'aerp_get_customer_attachments');
 add_filter('aerp_get_customer_phones', 'aerp_get_customer_phones');
+
+
+/**
+ * Xóa toàn bộ cache transient bảng (prefix aerp_table_)
+ */
+function aerp_clear_table_cache()
+{
+    global $wpdb;
+    $transients = $wpdb->get_col(
+        "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_aerp_table_%'"
+    );
+    foreach ($transients as $transient) {
+        $key = str_replace('_transient_', '', $transient);
+        delete_transient($key);
+    }
+}

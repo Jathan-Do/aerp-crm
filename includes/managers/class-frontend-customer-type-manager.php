@@ -3,13 +3,16 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class AERP_Frontend_Customer_Type_Manager {
-    public static function get_by_id($id) {
+class AERP_Frontend_Customer_Type_Manager
+{
+    public static function get_by_id($id)
+    {
         global $wpdb;
         $table = $wpdb->prefix . 'aerp_crm_customer_types';
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
     }
-    public static function handle_form_submit() {
+    public static function handle_form_submit()
+    {
         if (!isset($_POST['aerp_save_customer_type'])) {
             return;
         }
@@ -45,11 +48,14 @@ class AERP_Frontend_Customer_Type_Manager {
             $wpdb->insert($table, $data);
             $msg = 'Đã thêm loại khách hàng mới!';
         }
+        // Xóa cache bảng sau khi thêm/sửa
+        aerp_clear_table_cache();
         set_transient('aerp_customer_type_message', $msg, 10);
         wp_redirect(home_url('/aerp-crm-customer-types'));
         exit;
     }
-    public static function handle_single_delete() {
+    public static function handle_single_delete()
+    {
         $id = absint($_GET['id'] ?? 0);
         $nonce_action = 'delete_customer_type_' . $id;
         if ($id && check_admin_referer($nonce_action)) {
@@ -58,6 +64,8 @@ class AERP_Frontend_Customer_Type_Manager {
             } else {
                 $message = 'Không thể xóa loại khách hàng.';
             }
+            // Xóa cache bảng sau khi xóa
+            aerp_clear_table_cache();
             set_transient('aerp_customer_type_message', $message, 10);
             wp_redirect(home_url('/aerp-crm-customer-types'));
             exit;
@@ -70,6 +78,8 @@ class AERP_Frontend_Customer_Type_Manager {
     {
         global $wpdb;
         $deleted = $wpdb->delete($wpdb->prefix . 'aerp_crm_customer_types', ['id' => absint($id)]);
+        // Xóa cache bảng sau khi xóa
+        aerp_clear_table_cache();
         return (bool) $deleted;
     }
-} 
+}

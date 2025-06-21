@@ -18,9 +18,9 @@ if ($customer_id) {
 
 ob_start();
 ?>
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2 class="mb-0">Thông tin chi tiết khách hàng</h2>
-    <div class="user-info">
+    <div class="user-info text-end">
         <span class="me-2">Welcome, <?php echo esc_html($current_user->display_name); ?></span>
         <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-sm btn-outline-danger">
             <i class="fas fa-sign-out-alt"></i> Logout
@@ -45,68 +45,71 @@ if ($message) {
 
     <div class="card-body">
         <?php if ($customer) : ?>
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Mã khách hàng</label>
-                        <p class="mb-0 fw-bold"><?php echo esc_html($customer->customer_code); ?><span class="ms-1 badge bg-<?php echo ($customer->status === 'active') ? 'success' : 'secondary'; ?>">
-                                <?php echo esc_html($customer->status === 'active') ? 'Hoạt động' : 'Không hoạt động'; ?>
-                            </span></p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Họ và tên</label>
-                        <p class="mb-0"><?php echo esc_html($customer->full_name); ?></p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Loại khách hàng</label>
-                        <p class="mb-0">
-                            <?php
-                            $type = aerp_get_customer_type($customer->customer_type_id);
-                            if ($type) {
-                                echo '<span class="badge bg-' . esc_attr($type->color) . '">' . esc_html($type->name) . '</span>';
-                            } else {
-                                echo '<span class="badge bg-secondary">Không xác định</span>';
-                            }
-                            ?>
-                        </p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Email</label>
-                        <p class="mb-0">
-                            <?php if (!empty($customer->email)) : ?>
-                                <a href="mailto:<?php echo esc_attr($customer->email); ?>">
-                                    <?php echo esc_html($customer->email); ?>
-                                </a>
-                            <?php else : ?>
-                                <span class="text-muted">N/A</span>
-                            <?php endif; ?>
-                        </p>
-                    </div>
+            <div class="row mb-2">
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Mã khách hàng</label>
+                    <p class="mb-0 fw-bold"><?php echo esc_html($customer->customer_code); ?><span class="badge bg-<?php echo ($customer->status === 'active') ? 'success' : 'secondary'; ?>">
+                            <?php echo esc_html($customer->status === 'active') ? 'Hoạt động' : 'Không hoạt động'; ?>
+                        </span></p>
                 </div>
 
-                <div class="col-md-6">
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Tên công ty</label>
-                        <p class="mb-0"><?php echo esc_html($customer->company_name); ?></p>
-                    </div>
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Họ và tên</label>
+                    <p class="mb-0"><?php echo esc_html($customer->full_name); ?></p>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Mã số thuế</label>
-                        <p class="mb-0"><?php echo esc_html($customer->tax_code); ?></p>
-                    </div>
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Loại khách hàng</label>
+                    <p class="mb-0">
+                        <?php
+                        $type = aerp_get_customer_type($customer->customer_type_id);
+                        if ($type) {
+                            echo '<span class="badge bg-' . esc_attr($type->color) . '">' . esc_html($type->name) . '</span>';
+                        } else {
+                            echo '<span class="badge bg-secondary">Không xác định</span>';
+                        }
+                        ?>
+                    </p>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Địa chỉ</label>
-                        <p class="mb-0"><?php echo esc_html($customer->address); ?></p>
-                    </div>
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Email</label>
+                    <p class="mb-0">
+                        <?php if (!empty($customer->email)) : ?>
+                            <a href="mailto:<?php echo esc_attr($customer->email); ?>">
+                                <?php echo esc_html($customer->email); ?>
+                            </a>
+                        <?php else : ?>
+                            <span class="text-muted">N/A</span>
+                        <?php endif; ?>
+                    </p>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Tên công ty</label>
+                    <p class="mb-0"><?php echo esc_html($customer->company_name); ?></p>
+                </div>
 
-                    <div class="mb-3">
-                        <label class="fw-bold form-label text-muted small mb-1">Nhân viên phụ trách</label>
-                        <p class="mb-0"><?php echo esc_html(aerp_get_customer_assigned_name($customer->assigned_to)); ?></p>
-                    </div>
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Mã số thuế</label>
+                    <p class="mb-0"><?php echo esc_html($customer->tax_code); ?></p>
+                </div>
+
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Địa chỉ</label>
+                    <p class="mb-0"><?php echo esc_html($customer->address); ?></p>
+                </div>
+
+                <div class="col-6 mb-3">
+                    <label class="fw-bold form-label text-muted small mb-1">Nhân viên phụ trách</label>
+                    <p class="mb-0">
+                        <?php
+                        if (empty($customer->assigned_to)) {
+                            echo 'Chưa được phân công';
+                        } else {
+                            echo esc_html(aerp_get_customer_assigned_name($customer->assigned_to));
+                        }
+                        ?>
+                    </p>
                 </div>
             </div>
 
@@ -119,7 +122,7 @@ if ($message) {
                         <div class="card-body">
                             <?php $phones = aerp_get_customer_phones($customer->id); ?>
                             <?php if (!empty($phones)) : ?>
-                                <ul class="list-group list-group-flush m-0">
+                                <ul class="list-group m-0">
                                     <?php foreach ($phones as $phone) : ?>
                                         <li class="list-group-item d-flex justify-content-between align-items-center">
                                             <div>
@@ -153,7 +156,7 @@ if ($message) {
                         <div class="card-body">
                             <?php $attachments = aerp_get_customer_attachments($customer->id); ?>
                             <?php if (!empty($attachments)) : ?>
-                                <ul class="list-group list-group-flush overflow-hidden m-0">
+                                <ul class="list-group overflow-hidden m-0">
                                     <?php foreach ($attachments as $attachment) : ?>
                                         <li class="list-group-item">
                                             <a href="<?php echo esc_url($attachment->file_url); ?>" target="_blank" class="d-flex align-items-center">
@@ -192,16 +195,16 @@ if ($message) {
                     <h6 class="mb-0">Lịch sử tương tác</h6>
                 </div>
                 <div class="card-body">
-                    <?php 
+                    <?php
                     $logs_limit = 5; // Số lượng tương tác muốn hiển thị
-                    $logs = aerp_get_customer_logs_paginated($customer->id, $logs_limit, 0); 
+                    $logs = aerp_get_customer_logs_paginated($customer->id, $logs_limit, 0);
                     $total_logs = count(aerp_get_customer_logs($customer->id)); // Để kiểm tra xem có nhiều hơn giới hạn không
                     ?>
                     <?php if (!empty($logs)) : ?>
                         <ul class="list-group list-group-flush m-0">
                             <?php foreach ($logs as $log) : ?>
                                 <li class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between mb-1">
                                         <strong><?php echo esc_html($log->interaction_type); ?></strong>
                                         <small class="text-muted"><?php echo esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($log->created_at))); ?></small>
                                     </div>
@@ -245,7 +248,7 @@ if ($message) {
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center gap-2">
                 <div>
                     <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary me-2">
                         <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
@@ -254,7 +257,7 @@ if ($message) {
                         <i class="fas fa-edit me-1"></i> Chỉnh sửa
                     </a>
                 </div>
-                <div class="text-muted small">
+                <div class="text-muted small text-end">
                     <i class="far fa-clock me-1"></i> Ngày tạo: <?php echo esc_html($customer->created_at); ?>
                 </div>
             </div>

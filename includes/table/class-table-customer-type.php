@@ -5,6 +5,8 @@ if (!defined('ABSPATH')) {
 
 class AERP_Frontend_Customer_Type_Table extends AERP_Frontend_Table
 {
+    protected $filters = [];
+
     public function __construct()
     {
         parent::__construct([
@@ -28,7 +30,14 @@ class AERP_Frontend_Customer_Type_Table extends AERP_Frontend_Table
             'nonce_action_prefix' => 'delete_customer_type_',
             'message_transient_key' => 'aerp_customer_type_message',
             'hidden_columns_option_key' => 'aerp_crm_customer_type_table_hidden_columns',
+            'ajax_action' => 'aerp_crm_filter_customers_type',
+            'table_wrapper' => '#aerp-customer-type-table-wrapper',
         ]);
+    }
+
+    public function set_filters($filters = [])
+    {
+        parent::set_filters($filters); // Gọi cha để xử lý đầy đủ orderby, order, paged, search_term
     }
 
     /**
@@ -47,5 +56,18 @@ class AERP_Frontend_Customer_Type_Table extends AERP_Frontend_Table
         ];
         $label = $bootstrap_colors[$item->color] ?? $item->color;
         return '<span class="badge bg-' . esc_attr($item->color) . '">' . esc_html($label) . '</span>';
+    }
+
+    /**
+     * Điều kiện filter đặc thù cho bảng loại khách hàng
+     */
+    protected function get_extra_filters() {
+        $filters = [];
+        $params = [];
+        if (!empty($this->filters['color'])) {
+            $filters[] = "color = %s";
+            $params[] = $this->filters['color'];
+        }
+        return [$filters, $params];
     }
 } 

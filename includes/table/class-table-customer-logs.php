@@ -28,56 +28,52 @@ class AERP_Frontend_Customer_Logs_Table extends AERP_Frontend_Table
             'delete_item_callback' => ['AERP_Frontend_Customer_Manager', 'delete_customer_log_by_id'],
             'message_transient_key' => 'aerp_customer_log_message',
             'hidden_columns_option_key' => 'aerp_crm_customer_logs_table_hidden_columns',
+            'ajax_action' => 'aerp_crm_filter_customer_logs',
+            'table_wrapper' => '#aerp-customer-logs-table-wrapper',
         ]);
         $this->customer_id = $customer_id;
     }
 
-    /**
-     * Prepare items for the table.
-     */
-    public function get_items()
+    public function render()
     {
-        global $wpdb;
-
-        // Build where clause for search and customer_id
-        $where = ['customer_id = %d'];
-        $params = [$this->customer_id];
-
-        $search_query = '';
-        if (isset($_REQUEST['s']) && !empty($_REQUEST['s'])) {
-            $search = $wpdb->esc_like(sanitize_text_field($_REQUEST['s']));
-            $search_terms = explode(' ', $search);
-            $search_clauses = [];
-            foreach ($search_terms as $term) {
-                $search_clauses[] = "(interaction_type LIKE '%%{$term}%%') OR (content LIKE '%%{$term}%%')";
-            }
-            $where[] = '(' . implode(' OR ', $search_clauses) . ')';
+        // Khởi tạo bộ lọc với customer_id ngay từ đầu để đảm bảo nó không bị mất trong các lần AJAX request sau
+        if (empty($this->filters)) {
+            $this->set_filters([
+                'customer_id'      => $this->customer_id,
+                'interaction_type' => isset($_REQUEST['interaction_type']) ? sanitize_text_field($_REQUEST['interaction_type']) : '',
+                'search_term'      => isset($_REQUEST['s']) ? sanitize_text_field($_REQUEST['s']) : '',
+                'paged'            => isset($_REQUEST['paged']) ? intval($_REQUEST['paged']) : 1,
+                'orderby'          => isset($_REQUEST['orderby']) ? sanitize_text_field($_REQUEST['orderby']) : 'created_at',
+                'order'            => isset($_REQUEST['order']) ? sanitize_text_field($_REQUEST['order']) : 'desc',
+            ]);
         }
+        parent::render();
+    }
 
-        $where_clause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+    public function set_filters($filters = [])
+    {
+        parent::set_filters($filters); // Gọi cha để xử lý đầy đủ orderby, order, paged, search_term
+    }
 
-        $order_by = sanitize_sql_orderby($_REQUEST['orderby'] ?? 'created_at');
-        $order = sanitize_sql_orderby($_REQUEST['order'] ?? 'DESC');
-
-        // Get total items
-        $total_query = "SELECT COUNT(*) FROM {$this->table_name} {$where_clause}";
-        $this->total_items = $wpdb->get_var($wpdb->prepare($total_query, ...$params));
-
-        // Get items with pagination
-        $offset = ($this->current_page - 1) * $this->per_page;
-
-        // Validate sort column
-        if (!in_array($this->sort_column, $this->sortable_columns)) {
-            $this->sort_column = 'created_at'; // Default for logs
+    protected function get_extra_filters()
+    {
+        $filters = [];
+        $params = [];
+        
+        // Sử dụng customer_id từ filters (AJAX) hoặc từ property (non-AJAX)
+        $customer_id = !empty($this->filters['customer_id']) ? $this->filters['customer_id'] : $this->customer_id;
+        
+        if ($customer_id) {
+            $filters[] = "customer_id = %d";
+            $params[] = $customer_id;
         }
-
-        $query = "SELECT * FROM {$this->table_name} {$where_clause} ORDER BY {$this->sort_column} {$this->sort_order} LIMIT %d OFFSET %d";
-        $params[] = $this->per_page;
-        $params[] = $offset;
-
-        $this->items = $wpdb->get_results($wpdb->prepare($query, ...$params));
-
-        return $this->items;
+        
+        if (!empty($this->filters['interaction_type'])) {
+            $filters[] = "interaction_type = %s";
+            $params[] = $this->filters['interaction_type'];
+        }
+        
+        return [$filters, $params];
     }
 
     /**
@@ -95,4 +91,4 @@ class AERP_Frontend_Customer_Logs_Table extends AERP_Frontend_Table
     {
         return nl2br(esc_html($item->content));
     }
-} 
+}

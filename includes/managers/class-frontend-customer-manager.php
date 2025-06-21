@@ -3,8 +3,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class AERP_Frontend_Customer_Manager {
-    public static function handle_form_submit() {
+class AERP_Frontend_Customer_Manager
+{
+    public static function handle_form_submit()
+    {
         if (!isset($_POST['aerp_save_customer'])) {
             return;
         }
@@ -153,11 +155,11 @@ class AERP_Frontend_Customer_Manager {
 
                 if (!empty($phones_to_delete)) {
                     $ids_placeholder = implode(', ', array_fill(0, count($phones_to_delete), '%d'));
-                    
+
                     // Construct the arguments for wpdb->prepare
                     // The first argument is the query string, followed by the values for placeholders
                     $query_string = "DELETE FROM {$wpdb->prefix}aerp_crm_customer_phones WHERE id IN ({$ids_placeholder}) AND customer_id = %d";
-                    
+
                     // All values that go into the placeholders, including the customer_id at the end
                     $query_values = array_merge($phones_to_delete, [$customer_id]);
 
@@ -168,7 +170,6 @@ class AERP_Frontend_Customer_Manager {
 
                     $wpdb->query(call_user_func_array([$wpdb, 'prepare'], $prepare_arguments));
                 }
-
             } else {
                 // If no phone numbers are submitted at all, delete all existing ones for this customer
                 $wpdb->delete(
@@ -185,7 +186,7 @@ class AERP_Frontend_Customer_Manager {
                     require_once(ABSPATH . 'wp-admin/includes/file.php');
                 }
 
-                $upload_overrides = [ 'test_form' => false ];
+                $upload_overrides = ['test_form' => false];
                 foreach ($_FILES['attachments']['name'] as $key => $filename) {
                     if ($_FILES['attachments']['error'][$key] === UPLOAD_ERR_OK) {
                         $file = [
@@ -221,12 +222,15 @@ class AERP_Frontend_Customer_Manager {
             // For simplicity, for now, we only handle new uploads. The existing attachments deletion is handled via AJAX already.
         }
 
+        // Xóa cache bảng sau khi thêm/sửa
+        aerp_clear_table_cache();
         set_transient('aerp_customer_message', $msg, 10);
         wp_redirect(home_url('/aerp-crm-customers'));
         exit;
     }
 
-    public static function handle_single_delete() {
+    public static function handle_single_delete()
+    {
         $id = absint($_GET['id'] ?? 0);
         $nonce_action = 'delete_customer_' . $id;
 
@@ -236,6 +240,8 @@ class AERP_Frontend_Customer_Manager {
             } else {
                 $message = 'Không thể xóa khách hàng.';
             }
+            // Xóa cache bảng sau khi xóa
+            aerp_clear_table_cache();
             set_transient('aerp_customer_message', $message, 10);
             wp_redirect(home_url('/aerp-crm-customers'));
             exit;
@@ -254,16 +260,20 @@ class AERP_Frontend_Customer_Manager {
     {
         global $wpdb;
         $deleted = $wpdb->delete($wpdb->prefix . 'aerp_crm_customers', ['id' => absint($id)]);
+        // Xóa cache bảng sau khi xóa
+        aerp_clear_table_cache();
         return (bool) $deleted;
     }
 
-    public static function get_by_id($id) {
+    public static function get_by_id($id)
+    {
         global $wpdb;
         $table = $wpdb->prefix . 'aerp_crm_customers';
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
     }
 
-    public static function handle_delete_attachment_ajax() {
+    public static function handle_delete_attachment_ajax()
+    {
         if (!isset($_POST['attachment_id']) || !isset($_POST['_wpnonce'])) {
             wp_send_json_error('Thiếu tham số.');
         }
@@ -314,9 +324,11 @@ class AERP_Frontend_Customer_Manager {
         } else {
             wp_send_json_error('Không thể xóa file đính kèm khỏi cơ sở dữ liệu.');
         }
+        aerp_clear_table_cache();
     }
 
-    public static function handle_add_customer_log() {
+    public static function handle_add_customer_log()
+    {
         if (!isset($_POST['aerp_add_customer_log'])) {
             return;
         }
@@ -367,7 +379,8 @@ class AERP_Frontend_Customer_Manager {
         } else {
             set_transient('aerp_customer_message', 'Không thể ghi nhận tương tác mới.', 10);
         }
-
+        // Xóa cache bảng sau khi thêm/sửa
+        aerp_clear_table_cache();
         // Redirect back to the customer detail page
         wp_redirect(home_url('/aerp-crm-customers/' . $customer_id));
         exit;
@@ -377,6 +390,8 @@ class AERP_Frontend_Customer_Manager {
     {
         global $wpdb;
         $deleted = $wpdb->delete($wpdb->prefix . 'aerp_crm_logs', ['id' => absint($id)]);
+        // Xóa cache bảng sau khi thêm/sửa
+        aerp_clear_table_cache();
         return (bool) $deleted;
     }
-} 
+}

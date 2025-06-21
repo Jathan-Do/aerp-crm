@@ -125,7 +125,5 @@ add_action('wp_enqueue_scripts', function () {
     }
 }, 20); // Use a higher priority to ensure it loads after other scripts if needed
 
-
-// AJAX Hooks for Customer Attachments
-add_action('wp_ajax_aerp_delete_customer_attachment', ['AERP_Frontend_Customer_Manager', 'handle_delete_attachment_ajax']);
-add_action('wp_ajax_nopriv_aerp_delete_customer_attachment', ['AERP_Frontend_Customer_Manager', 'handle_delete_attachment_ajax']); // If non-logged in users can delete, though typically not recommended
+// Ajax hooks
+require_once AERP_CRM_PATH . 'includes/ajax/ajax-hook.php';
