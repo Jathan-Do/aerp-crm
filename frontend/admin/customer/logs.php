@@ -34,7 +34,7 @@ ob_start();
                 <label for="filter-interaction-type" class="form-label mb-1">Loại tương tác</label>
                 <select id="filter-interaction-type" name="interaction_type" class="form-select">
                     <?php
-                    $types = aerp_get_customer_logs($customer->id);
+                    $types = aerp_get_customer_interaction_types($customer->id);
                     aerp_safe_select_options($types, '', 'interaction_type', 'interaction_type', true);
                     ?>
                 </select>

@@ -23,7 +23,10 @@ class AERP_Frontend_Customer_Manager
         $id = isset($_POST['customer_id']) ? absint($_POST['customer_id']) : 0;
         $customer_id = 0; // Initialize customer_id
         // Sinh mã khách hàng tự động nếu thêm mới
-        if (!$id) {
+        if ($id) {
+            // Khi sửa giữ nguyên mã cũ
+            $customer_code = $wpdb->get_var($wpdb->prepare("SELECT customer_code FROM $table WHERE id = %d", $id));
+        } else {
             $max_code = $wpdb->get_var("SELECT customer_code FROM $table WHERE customer_code LIKE 'KH-%' ORDER BY id DESC LIMIT 1");
             if (preg_match('/KH-(\\d+)/', $max_code, $matches)) {
                 $next_number = intval($matches[1]) + 1;
@@ -31,9 +34,6 @@ class AERP_Frontend_Customer_Manager
                 $next_number = 1;
             }
             $customer_code = 'KH-' . $next_number;
-        } else {
-            // Khi sửa giữ nguyên mã cũ
-            $customer_code = sanitize_text_field($_POST['customer_code']);
         }
         $full_name = sanitize_text_field($_POST['full_name']);
         $company_name = sanitize_text_field($_POST['company_name']);

@@ -94,7 +94,7 @@ ob_start();
                 </div>
 
                 <!-- Attachments Section -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3 overflow-hidden">
                     <label for="attachments" class="form-label">File đính kèm</label>
                     <input type="file" class="form-control" id="attachments" name="attachments[]" multiple>
                     <div id="existing-attachments-container" class="mt-2">

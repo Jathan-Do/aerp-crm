@@ -32,10 +32,11 @@ function aerp_get_customer_logs($customer_id)
 {
     global $wpdb;
     return $wpdb->get_results($wpdb->prepare(
-        "SELECT * FROM {$wpdb->prefix}aerp_crm_logs WHERE customer_id = %d ORDER BY created_at DESC",
+        "SELECT * FROM {$wpdb->prefix}aerp_crm_logs WHERE customer_id = %d ORDER BY interaction_type DESC",
         $customer_id
     ));
 }
+
 /**
  * Lấy danh sách tương tác của khách hàng với giới hạn và offset (dùng cho phân trang)
  */
@@ -166,4 +167,13 @@ function aerp_clear_table_cache()
         $key = str_replace('_transient_', '', $transient);
         delete_transient($key);
     }
+}
+
+function aerp_get_customer_interaction_types($customer_id)
+{
+    global $wpdb;
+    return $wpdb->get_col($wpdb->prepare(
+        "SELECT DISTINCT interaction_type FROM {$wpdb->prefix}aerp_crm_logs WHERE customer_id = %d ORDER BY interaction_type ASC",
+        $customer_id
+    ));
 }

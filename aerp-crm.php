@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: AERP CRM – Quản lý khách hàng
- * Description: Module quản lý khách hàng và bán hàng của hệ thống AERP.
+ * Description: Module quản lý khách hàng của hệ thống AERP.
  * Version: 1.0.0
  * Author: Truong Thinh Group
  * Text Domain: aerp-crm
@@ -111,16 +111,16 @@ add_action('wp_enqueue_scripts', function () {
             wp_enqueue_script('aerp-frontend-table', AERP_HRM_URL . 'assets/js/frontend-table.js', ['jquery', 'jquery-ui-dialog'], '1.0', true);
 
             // Instantiate AERP_Frontend_Customer_Table to get column keys and option key
-            $customer_table_instance = new AERP_Frontend_Customer_Table();
-            $all_crm_column_keys = $customer_table_instance->get_column_keys();
-            $crm_hidden_columns_option_key = $customer_table_instance->get_hidden_columns_option_key();
+            // $customer_table_instance = new AERP_Frontend_Customer_Table();
+            // $all_crm_column_keys = $customer_table_instance->get_column_keys();
+            // $crm_hidden_columns_option_key = $customer_table_instance->get_hidden_columns_option_key();
 
-            wp_localize_script('aerp-frontend-table', 'aerp_table_ajax', array(
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce'    => wp_create_nonce('aerp_save_column_preferences'), // Same nonce action as HRM
-                'all_column_keys' => $all_crm_column_keys,
-                'hidden_columns_option_key' => $crm_hidden_columns_option_key
-            ));
+            // wp_localize_script('aerp-frontend-table', 'aerp_table_ajax', array(
+            //     'ajax_url' => admin_url('admin-ajax.php'),
+            //     'nonce'    => wp_create_nonce('aerp_save_column_preferences'), // Same nonce action as HRM
+            //     'all_column_keys' => $all_crm_column_keys,
+            //     'hidden_columns_option_key' => $crm_hidden_columns_option_key
+            // ));
         }
     }
 }, 20); // Use a higher priority to ensure it loads after other scripts if needed
