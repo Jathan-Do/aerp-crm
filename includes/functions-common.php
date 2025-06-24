@@ -154,21 +154,6 @@ add_filter('aerp_get_customer_attachments', 'aerp_get_customer_attachments');
 add_filter('aerp_get_customer_phones', 'aerp_get_customer_phones');
 
 
-/**
- * Xóa toàn bộ cache transient bảng (prefix aerp_table_)
- */
-function aerp_clear_table_cache()
-{
-    global $wpdb;
-    $transients = $wpdb->get_col(
-        "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '_transient_aerp_table_%'"
-    );
-    foreach ($transients as $transient) {
-        $key = str_replace('_transient_', '', $transient);
-        delete_transient($key);
-    }
-}
-
 function aerp_get_customer_interaction_types($customer_id)
 {
     global $wpdb;
