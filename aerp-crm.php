@@ -26,6 +26,17 @@ add_action('admin_init', function() {
         });
     }
 });
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), function($actions) {
+    if (function_exists('is_plugin_active')) {
+        include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    if (is_plugin_active('aerp-order/aerp-order.php')) {
+        // Disable deactivate link
+        unset($actions['deactivate']);
+        $actions['deactivate'] = '<span style="color:#aaa;">Vui lòng deactivate AERP ORDER trước</span>';
+    }
+    return $actions;
+});
 // Kiểm tra bản Pro
 if (!function_exists('aerp_crm_is_pro')) {
     function aerp_crm_is_pro()
