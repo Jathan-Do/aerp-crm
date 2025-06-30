@@ -50,7 +50,7 @@ ob_start();
         <div id="aerp-customer-type-table-wrapper">
             <?php $table->render(); ?>
         </div>
-        <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary m-3 mt-0" style="width: fit-content;">
+        <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary" style="width: fit-content;">
             <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
         </a>
     </div>

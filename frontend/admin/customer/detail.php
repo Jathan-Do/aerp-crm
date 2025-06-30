@@ -2,7 +2,9 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
+if (!function_exists('is_plugin_active')) {
+    include_once(ABSPATH . 'wp-admin/includes/plugin.php');
+}
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 // Check if user is logged in and has admin capabilities (adjust as needed for CRM roles)
@@ -15,7 +17,7 @@ $customer = null;
 if ($customer_id) {
     $customer = AERP_Frontend_Customer_Manager::get_by_id($customer_id);
 }
-
+$order_active = function_exists('aerp_order_init') || is_plugin_active('aerp-order/aerp-order.php');
 ob_start();
 ?>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
@@ -248,6 +250,25 @@ if ($message) {
                 </div>
             </div>
 
+            <?php if ($order_active) : ?>
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">Lịch sử đơn hàng</h6>
+                    </div>
+                    <div class="card-body">
+                        <?php
+                        if ($customer) {
+                            $table = new AERP_Frontend_Order_Table();
+                            $table->set_filters(['customer_id' => $customer->id]);
+                            $table->process_bulk_action();
+                        }
+                        ?>
+                        <div id="aerp-order-table-wrapper">
+                            <?php $table->render(); ?>
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
             <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center gap-2">
                 <div>
                     <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary me-2">
