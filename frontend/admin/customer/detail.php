@@ -252,8 +252,13 @@ if ($message) {
 
             <?php if ($order_active) : ?>
                 <div class="card mb-4">
-                    <div class="card-header bg-light">
+                    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                         <h6 class="mb-0">Lịch sử đơn hàng</h6>
+                        <div class="d-flex gap-2 flex-column flex-md-row">
+                            <a href="<?php echo esc_url(home_url('/aerp-order-orders/?action=add')); ?>" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Tạo đơn hàng
+                            </a>
+                        </div>
                     </div>
                     <div class="card-body">
                         <?php

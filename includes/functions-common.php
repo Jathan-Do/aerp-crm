@@ -12,7 +12,15 @@ function aerp_get_customers()
     global $wpdb;
     return $wpdb->get_results("SELECT * FROM {$wpdb->prefix}aerp_crm_customers ORDER BY full_name ASC");
 }
-
+function aerp_get_customers_select2($q = '') {
+    global $wpdb;
+    $sql = "SELECT * FROM {$wpdb->prefix}aerp_crm_customers WHERE 1=1";
+    if ($q !== '') {
+        $q_like = '%' . $wpdb->esc_like($q) . '%';
+        $sql .= $wpdb->prepare(" AND (full_name LIKE %s OR customer_code LIKE %s)", $q_like, $q_like);
+    }
+    return $wpdb->get_results($sql);
+}
 /**
  * Lấy thông tin khách hàng theo ID
  */
