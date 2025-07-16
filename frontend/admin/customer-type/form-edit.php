@@ -3,6 +3,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 $current_user = wp_get_current_user();
+$user_id = $current_user->ID;
+
+// Check if user is logged in and has admin capabilities
+if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
+    wp_die(__('You do not have sufficient permissions to access this page.'));
+}
 $type_id = isset($_GET['id']) ? absint($_GET['id']) : 0;
 $type = AERP_Frontend_Customer_Type_Manager::get_by_id($type_id);
 if (!$type) {
