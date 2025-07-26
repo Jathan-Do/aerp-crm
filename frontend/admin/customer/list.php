@@ -13,6 +13,27 @@ $table->process_bulk_action();
 
 ob_start();
 ?>
+<style>
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 6px 12px !important;
+        background: #fff !important;
+        font-size: 1rem !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px !important;
+        padding-left: 0 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 0.75rem !important;
+    }
+</style>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2>Quản lý khách hàng</h2>
     <div class="user-info text-end">
@@ -59,7 +80,7 @@ ob_start();
             </div>
             <div class="col-12 col-md-2 mb-2">
                 <label for="filter-assigned-to" class="form-label mb-1">Nhân viên phụ trách</label>
-                <select id="filter-assigned-to" name="assigned_to" class="form-select">
+                <select id="filter-assigned-to" name="assigned_to" class="form-select employee-select-all">
                     <?php
                     $employees = aerp_get_assigned_employees();
                     aerp_safe_select_options($employees, '', 'user_id', 'full_name', true);
@@ -86,6 +107,28 @@ ob_start();
     </div>
 </div>
 
+<script>
+    $(".employee-select-all").select2({
+            placeholder: "Chọn nhân viên",
+            allowClear: true,
+            ajax: {
+                url: aerp_order_ajax.ajaxurl,
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        action: "aerp_order_search_employees",
+                        q: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    return { results: data };
+                },
+                cache: true,
+            },
+            minimumInputLength: 0,
+        });
+</script>
 <?php
 $content = ob_get_clean();
 $title = 'Quản lý khách hàng';
