@@ -20,6 +20,27 @@ if (!$editing) {
 
 ob_start();
 ?>
+<style>
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 6px 12px !important;
+        background: #fff !important;
+        font-size: 1rem !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px !important;
+        padding-left: 0 !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px !important;
+        right: 0.75rem !important;
+    }
+</style>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2>Cập nhật khách hàng</h2>
     <div class="user-info text-end">
@@ -134,7 +155,7 @@ ob_start();
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="assigned_to" class="form-label">Người phụ trách</label>
-                    <select class="form-select" id="assigned_to" name="assigned_to">
+                    <select class="form-select employee-select" id="assigned_to" name="assigned_to">
                         <option value="">-- Chọn nhân viên --</option>
                         <?php
                         $employees = aerp_get_employees_with_location(); // Lấy danh sách nhân viên
@@ -145,8 +166,8 @@ ob_start();
                             }
                             printf(
                                 '<option value="%s"%s>%s</option>',
-                                esc_attr($employee->user_id),
-                                selected($editing->assigned_to, $employee->user_id, false),
+                                esc_attr($employee->id),
+                                selected($editing->assigned_to, $employee->id, false),
                                 $display_name
                             );
                         }
@@ -165,6 +186,31 @@ ob_start();
         </form>
     </div>
 </div>
+<script>
+    $(".employee-select").select2({
+        placeholder: "Chọn nhân viên",
+        allowClear: true,
+        ajax: {
+            url: aerp_order_ajax.ajaxurl,
+            dataType: "json",
+            delay: 250,
+            data: function(params) {
+                return {
+                    action: "aerp_get_users_by_work_location",
+                    work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
+                    q: params.term,
+                };
+            },
+            processResults: function(data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true,
+        },
+        minimumInputLength: 0,
+    });
+</script>
 <?php
 $content = ob_get_clean();
 $title = 'Cập nhật khách hàng';

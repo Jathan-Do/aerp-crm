@@ -103,7 +103,7 @@ function aerp_get_customer_assigned_name($assigned_to)
 {
     if (!$assigned_to) return '';
 
-    $employee = aerp_get_employee_by_user_id($assigned_to);
+    $employee = aerp_get_employee_by_id($assigned_to);
     if ($employee) {
         $display_name = $employee->full_name;
         if (!empty($employee->work_location_id)) {

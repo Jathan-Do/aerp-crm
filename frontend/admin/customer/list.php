@@ -80,7 +80,7 @@ ob_start();
             </div>
             <div class="col-12 col-md-2 mb-2">
                 <label for="filter-assigned-to" class="form-label mb-1">Nhân viên phụ trách</label>
-                <select id="filter-assigned-to" name="assigned_to" class="form-select employee-select-all">
+                <select id="filter-assigned-to" name="assigned_to" class="form-select employee-select">
                     <?php
                     $employees = aerp_get_assigned_employees();
                     aerp_safe_select_options($employees, '', 'user_id', 'full_name', true);
@@ -108,26 +108,29 @@ ob_start();
 </div>
 
 <script>
-    $(".employee-select-all").select2({
-            placeholder: "Chọn nhân viên",
-            allowClear: true,
-            ajax: {
-                url: aerp_order_ajax.ajaxurl,
-                dataType: "json",
-                delay: 250,
-                data: function (params) {
-                    return {
-                        action: "aerp_order_search_employees",
-                        q: params.term,
-                    };
-                },
-                processResults: function (data) {
-                    return { results: data };
-                },
-                cache: true,
+    $(".employee-select").select2({
+        placeholder: "Chọn nhân viên",
+        allowClear: true,
+        ajax: {
+            url: aerp_order_ajax.ajaxurl,
+            dataType: "json",
+            delay: 250,
+            data: function(params) {
+                return {
+                    action: "aerp_get_users_by_work_location",
+                    work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
+                    q: params.term,
+                };
             },
-            minimumInputLength: 0,
-        });
+            processResults: function(data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true,
+        },
+        minimumInputLength: 0,
+    });
 </script>
 <?php
 $content = ob_get_clean();
