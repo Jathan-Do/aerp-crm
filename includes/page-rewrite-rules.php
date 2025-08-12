@@ -8,6 +8,7 @@ add_action('init', function () {
     add_rewrite_rule('^aerp-crm-customers/?$', 'index.php?aerp_crm_page=customers', 'top');
     add_rewrite_rule('^aerp-crm-customers/([0-9]+)/?$', 'index.php?aerp_crm_page=customer_detail&aerp_crm_customer_id=$matches[1]', 'top');
     add_rewrite_rule('^aerp-crm-customer-types/?$', 'index.php?aerp_crm_page=customer_types', 'top');
+    add_rewrite_rule('^aerp-crm-customer-sources/?$', 'index.php?aerp_crm_page=customer_sources', 'top');
 
     $rules = get_option('rewrite_rules');
     if ($rules && (!isset($rules['^aerp-crm-dashboard/?$']))) {
@@ -20,6 +21,9 @@ add_action('init', function () {
         flush_rewrite_rules();
     }
     if ($rules && !isset($rules['^aerp-crm-customers/([0-9]+)/?$'])) {
+        flush_rewrite_rules();
+    }
+    if ($rules && !isset($rules['^aerp-crm-customer-sources/?$'])) {
         flush_rewrite_rules();
     }
     if ($rules && !isset($rules['^aerp-crm-customer-types/?$'])) {
@@ -50,7 +54,7 @@ add_filter('query_vars', function ($vars) {
 add_action('template_redirect', function () {
 
     if (get_query_var('aerp_crm_dashboard')) {
-        set_query_var('aerp_crm_template_name', 'dashboard.php');
+        set_query_var('aerp_crm_template_name', 'report-customer.php');
     }
     if (get_query_var('aerp_categories')) {
         set_query_var('aerp_crm_template_name', '../aerp-hrm/frontend/dashboard/categories.php');
@@ -110,6 +114,22 @@ add_action('template_redirect', function () {
                         return;
                     default:
                         $template_name = 'customer-type/list.php';
+                        break;
+                }
+                break;
+            case 'customer_sources':
+                switch ($action_from_get) {
+                    case 'add':
+                        $template_name = 'customer-source/form-add.php';
+                        break;
+                    case 'edit':
+                        $template_name = 'customer-source/form-edit.php';
+                        break;
+                    case 'delete':
+                        AERP_Frontend_Customer_Source_Manager::handle_single_delete();
+                        return;
+                    default:
+                        $template_name = 'customer-source/list.php';
                         break;
                 }
                 break;

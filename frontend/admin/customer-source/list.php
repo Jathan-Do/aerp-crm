@@ -11,17 +11,20 @@ if (!is_user_logged_in()) {
 $access_conditions = [
     aerp_user_has_role($user_id, 'admin'),
     aerp_user_has_role($user_id, 'department_lead'),
-    aerp_user_has_permission($user_id, 'customer_type_view'),
+    aerp_user_has_permission($user_id, 'customer_source_view'),
 ];
 
 if (!in_array(true, $access_conditions, true)) {
     wp_die(__('You do not have sufficient permissions to access this page.'));
 }
-$table = new AERP_Frontend_Customer_Type_Table();
+
+$table = new AERP_Frontend_Customer_Source_Table();
 $table->process_bulk_action();
+
 // Fetch distinct colors for filter
 global $wpdb;
-$colors = $wpdb->get_col("SELECT DISTINCT color FROM {$wpdb->prefix}aerp_crm_customer_types WHERE color IS NOT NULL AND color <> '' ORDER BY color ASC");
+$colors = $wpdb->get_col("SELECT DISTINCT color FROM {$wpdb->prefix}aerp_crm_customer_sources WHERE color IS NOT NULL AND color <> '' ORDER BY color ASC");
+
 ob_start();
 ?>
 <style>
@@ -57,7 +60,7 @@ ob_start();
     }
 </style>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
-    <h2>Quản lý loại khách hàng</h2>
+    <h2>Quản lý nguồn khách hàng</h2>
     <div class="user-info text-end">
         Welcome, <?php echo esc_html($current_user->display_name); ?>
         <a href="<?php echo wp_logout_url(site_url('/aerp-dang-nhap')); ?>" class="btn btn-sm btn-outline-danger ms-2">
@@ -65,16 +68,19 @@ ob_start();
         </a>
     </div>
 </div>
+
 <div class="card">
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-        <h5 class="mb-0">Danh sách loại khách hàng</h5>
-        <a href="<?php echo esc_url(home_url('/aerp-crm-customer-types/?action=add')); ?>" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Thêm mới
-        </a>
+        <h5 class="mb-0">Danh sách nguồn khách hàng</h5>
+        <div class="d-flex gap-2 flex-column flex-md-row">
+            <a href="<?php echo esc_url(home_url('/aerp-crm-customer-sources/?action=add')); ?>" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Thêm mới nguồn
+            </a>
+        </div>
     </div>
     <div class="card-body">
         <!-- Filter Form -->
-        <form id="aerp-customer-type-filter-form" class="row g-2 mb-3 aerp-table-ajax-form" data-table-wrapper="#aerp-customer-type-table-wrapper" data-ajax-action="aerp_crm_filter_customers_type">
+        <form id="aerp-customer-source-filter-form" class="row g-2 mb-3 aerp-table-ajax-form" data-table-wrapper="#aerp-customer-source-table-wrapper" data-ajax-action="aerp_crm_filter_customers_source">
             <div class="col-12 col-md-3 mb-2">
                 <label for="filter-color" class="form-label mb-1">Màu sắc</label>
                 <select id="filter-color" name="color" class="form-select color-select">
@@ -92,14 +98,16 @@ ob_start();
                 <button type="submit" class="btn btn-primary w-100">Lọc</button>
             </div>
         </form>
-        <?php $message = get_transient('aerp_customer_type_message');
+        <?php
+        $message = get_transient('aerp_customer_source_message');
         if ($message) {
             echo '<div class="alert alert-success alert-dismissible fade show" role="alert">'
                 . esc_html($message) .
                 '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-            delete_transient('aerp_customer_type_message');
-        } ?>
-        <div id="aerp-customer-type-table-wrapper">
+            delete_transient('aerp_customer_source_message');
+        }
+        ?>
+        <div id="aerp-customer-source-table-wrapper">
             <?php $table->render(); ?>
         </div>
         <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary" style="width: fit-content;">
@@ -107,6 +115,7 @@ ob_start();
         </a>
     </div>
 </div>
+
 <script>
     jQuery(function($) {
         function formatColorOption(option) {
@@ -129,12 +138,14 @@ ob_start();
                 templateSelection: formatColorOption,
                 escapeMarkup: function(markup) {
                     return markup;
-                }
+                },
             });
         }
     });
 </script>
+
 <?php
 $content = ob_get_clean();
-$title = 'Quản lý loại khách hàng';
+$title = 'Quản lý nguồn khách hàng';
 include(AERP_HRM_PATH . 'frontend/dashboard/layout.php');
+?>

@@ -2,10 +2,22 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+// Get current user
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
-// Check if user is logged in and has admin capabilities (adjust as needed for CRM roles)
-if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
+
+if (!is_user_logged_in()) {
+    wp_die(__('You must be logged in to access this page.'));
+}
+
+// Danh sách điều kiện, chỉ cần 1 cái đúng là qua
+$access_conditions = [
+    aerp_user_has_role($user_id, 'admin'),
+    aerp_user_has_role($user_id, 'department_lead'),
+    aerp_user_has_permission($user_id, 'customer_source_view'),
+];
+
+if (!in_array(true, $access_conditions, true)) {
     wp_die(__('You do not have sufficient permissions to access this page.'));
 }
 
@@ -31,6 +43,33 @@ ob_start();
         height: 36px !important;
         right: 0.75rem !important;
     }
+
+    /* Phone validation styles */
+    .aerp-phone-input.is-invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .aerp-phone-input.is-valid {
+        border-color: #198754 !important;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+    }
+
+    .invalid-feedback {
+        display: block !important;
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .valid-feedback {
+        display: block !important;
+        color: #198754;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
 </style>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2>Thêm khách hàng mới</h2>
@@ -44,42 +83,71 @@ ob_start();
 
 <div class="card">
     <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+        <form class="aerp-customer-form" method="post" enctype="multipart/form-data">
             <?php wp_nonce_field('aerp_save_customer_action', 'aerp_save_customer_nonce'); ?>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="full_name" class="form-label">Họ và tên</label>
-                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="full_name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="address" name="address" rows="1"></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="customer_source_id" class="form-label">Nguồn khách hàng</label>
+                            <select class="form-select" id="customer_source_id" name="customer_source_id">
+                                <option value="">-- Chọn nguồn --</option>
+                                <?php
+                                $customer_sources = aerp_get_customer_sources();
+                                if ($customer_sources) {
+                                    foreach ($customer_sources as $source) {
+                                        printf(
+                                            '<option value="%s">%s</option>',
+                                            esc_attr($source->id),
+                                            esc_html($source->name)
+                                        );
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="company_name" class="form-label">Tên công ty</label>
-                    <input type="text" class="form-control" id="company_name" name="company_name">
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="company_name" class="form-label">Tên công ty</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="tax_code" class="form-label">Mã số thuế</label>
+                            <input type="text" class="form-control" id="tax_code" name="tax_code">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email">
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="tax_code" class="form-label">Mã số thuế</label>
-                    <input type="text" class="form-control" id="tax_code" name="tax_code">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email">
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="address" class="form-label">Địa chỉ</label>
-                    <textarea class="form-control" id="address" name="address" rows="2"></textarea>
-                </div>
+
                 <div class="col-12 mb-3">
                     <label class="form-label">Số điện thoại</label>
                     <div id="phone-numbers-container">
-                        <div class="input-group mb-2">
-                            <input type="text" class="form-control" name="phone_numbers[0][number]" placeholder="Số điện thoại">
-                            <div class="input-group-text">
-                                <input class="form-check-input border-secondary mt-0" type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính
+                        <div class="phone-input-wrapper">
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control aerp-phone-input" name="phone_numbers[0][number]" placeholder="Số điện thoại" required>
+                                <div class="input-group-text">
+                                    <input class="form-check-input border-secondary mt-0" type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính
+                                </div>
+                                <input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">
+                                <button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>
                             </div>
-                            <input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">
-                            <button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>
                         </div>
                     </div>
-                    <button type="button" class="btn btn-secondary mt-2" id="add-phone-field">Thêm số điện thoại</button>
+                    <button type="button" class="btn btn-outline-primary mt-2" id="add-phone-field">Thêm số điện thoại</button>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="attachments" class="form-label">File đính kèm</label>
@@ -94,6 +162,7 @@ ob_start();
                         ?>
                     </select>
                 </div>
+
                 <div class="col-md-6 mb-3">
                     <label for="status" class="form-label">Trạng thái</label>
                     <select class="form-select" id="status" name="status">
@@ -134,29 +203,29 @@ ob_start();
     </div>
 </div>
 <script>
-    $(".employee-select").select2({
-        placeholder: "Chọn nhân viên",
-        allowClear: true,
-        ajax: {
-            url: aerp_order_ajax.ajaxurl,
-            dataType: "json",
-            delay: 250,
-            data: function(params) {
-                return {
-                    action: "aerp_get_users_by_work_location",
-                    work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
-                    q: params.term,
-                };
-            },
-            processResults: function(data) {
-                return {
-                    results: data
-                };
-            },
-            cache: true,
-        },
-        minimumInputLength: 0,
-    });
+    // $(".employee-select").select2({
+    //     placeholder: "Chọn nhân viên",
+    //     allowClear: true,
+    //     ajax: {
+    //         url: aerp_order_ajax.ajaxurl,
+    //         dataType: "json",
+    //         delay: 250,
+    //         data: function(params) {
+    //             return {
+    //                 action: "aerp_get_users_by_work_location",
+    //                 work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
+    //                 q: params.term,
+    //             };
+    //         },
+    //         processResults: function(data) {
+    //             return {
+    //                 results: data
+    //             };
+    //         },
+    //         cache: true,
+    //     },
+    //     minimumInputLength: 0,
+    // });
 </script>
 <?php
 $content = ob_get_clean();

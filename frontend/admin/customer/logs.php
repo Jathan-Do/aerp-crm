@@ -61,7 +61,7 @@ ob_start();
             <?php $customer_logs_table->render(); ?>
         </div>
 
-        <div class="card-body d-flex justify-content-start align-items-center mt-4 gap-2">
+        <div class="d-flex justify-content-start align-items-center mt-4 gap-2">
             <a href="<?php echo home_url('/aerp-crm-customers/' . $customer->id); ?>" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Quay lại chi tiết
             </a>

@@ -12,7 +12,7 @@ class AERP_Frontend_Customer_Logs_Table extends AERP_Frontend_Table
         parent::__construct([
             'table_name' => $GLOBALS['wpdb']->prefix . 'aerp_crm_logs',
             'columns' => [
-                'id' => 'ID',
+                // 'id' => 'ID',
                 'interaction_type' => 'Loại tương tác',
                 'content' => 'Nội dung',
                 'interacted_by' => 'Nhân viên thực hiện',

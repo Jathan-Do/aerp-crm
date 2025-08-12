@@ -2,11 +2,22 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+// Get current user
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 
-// Check if user is logged in and has admin capabilities
-if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
+if (!is_user_logged_in()) {
+    wp_die(__('You must be logged in to access this page.'));
+}
+
+// Danh sách điều kiện, chỉ cần 1 cái đúng là qua
+$access_conditions = [
+    aerp_user_has_role($user_id, 'admin'),
+    aerp_user_has_role($user_id, 'department_lead'),
+    aerp_user_has_permission($user_id, 'customer_type_edit'),
+];
+
+if (!in_array(true, $access_conditions, true)) {
     wp_die(__('You do not have sufficient permissions to access this page.'));
 }
 $type_id = isset($_GET['id']) ? absint($_GET['id']) : 0;
@@ -48,29 +59,8 @@ if ($message) {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="color" class="form-label">Màu sắc</label>
-                    <div class="mb-2">
-                        <?php
-                        $bootstrap_colors = [
-                            'primary' => 'Xanh dương',
-                            'secondary' => 'Xám',
-                            'success' => 'Xanh lá',
-                            'danger' => 'Đỏ',
-                            'warning' => 'Vàng',
-                            'info' => 'Xanh nhạt',
-                            'dark' => 'Đen',
-                        ];
-                        foreach ($bootstrap_colors as $key => $label) {
-                            echo '<span class="badge bg-' . esc_attr($key) . ' me-2">' . esc_html($label) . '</span>';
-                        }
-                        ?>
-                    </div>
-                    <select class="form-select" id="color" name="color">
-                        <?php
-                        foreach ($bootstrap_colors as $key => $label) {
-                            printf('<option value="%s"%s>%s</option>', esc_attr($key), selected($type->color, $key, false), esc_html($label));
-                        }
-                        ?>
-                    </select>
+                    <input type="color" class="form-control form-control-color" id="color" name="color" value="<?php echo esc_attr($type->color ?: '#007bff'); ?>">
+                    <div class="form-text">Màu sắc để phân biệt nguồn</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="description" class="form-label">Mô tả</label>

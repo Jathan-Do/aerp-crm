@@ -153,7 +153,32 @@ function aerp_get_assigned_employees()
     }
     return $employees;
 }
+function aerp_get_customer_sources()
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'aerp_crm_customer_sources';
+    return $wpdb->get_results("SELECT * FROM $table ORDER BY name ASC");
+}
 
+/**
+ * Get customer source by ID
+ */
+function aerp_get_customer_source($id)
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'aerp_crm_customer_sources';
+    return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $id));
+}
+
+/**
+ * Get customer source by key
+ */
+function aerp_get_customer_source_by_key($key)
+{
+    global $wpdb;
+    $table = $wpdb->prefix . 'aerp_crm_customer_sources';
+    return $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE source_key = %s", $key));
+}
 // Allow plugin modules to apply filters
 add_filter('aerp_get_customers', 'aerp_get_customers');
 add_filter('aerp_get_customer', 'aerp_get_customer');

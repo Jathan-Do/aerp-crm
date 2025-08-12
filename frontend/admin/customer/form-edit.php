@@ -40,6 +40,33 @@ ob_start();
         height: 36px !important;
         right: 0.75rem !important;
     }
+
+    /* Phone validation styles */
+    .input-group .aerp-phone-input.is-invalid {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    .input-group .aerp-phone-input.is-valid {
+        border-color: #198754 !important;
+        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+    }
+
+    .invalid-feedback {
+        display: block !important;
+        color: #dc3545;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .valid-feedback {
+        display: block !important;
+        color: #198754;
+        font-size: 0.875em;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
 </style>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
     <h2>Cập nhật khách hàng</h2>
@@ -53,30 +80,59 @@ ob_start();
 
 <div class="card">
     <div class="card-body">
-        <form method="post" enctype="multipart/form-data">
+        <form class="aerp-customer-form" method="post" enctype="multipart/form-data">
             <?php wp_nonce_field('aerp_save_customer_action', 'aerp_save_customer_nonce'); ?>
             <?php wp_nonce_field('aerp_delete_attachment_nonce', 'aerp_delete_attachment_nonce'); ?>
             <input type="hidden" name="customer_id" value="<?php echo esc_attr($edit_id); ?>">
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="full_name" class="form-label">Họ và tên</label>
-                    <input type="text" class="form-control" id="full_name" name="full_name" value="<?php echo esc_attr($editing->full_name); ?>" required>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="full_name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" value="<?php echo esc_attr($editing->full_name); ?>" required>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="address" name="address" rows="1"><?php echo esc_textarea($editing->address); ?></textarea>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="customer_source_id" class="form-label">Nguồn khách hàng</label>
+                            <select class="form-select" id="customer_source_id" name="customer_source_id">
+                                <option value="">-- Chọn nguồn --</option>
+                                <?php
+                                $customer_sources = aerp_get_customer_sources();
+                                if ($customer_sources) {
+                                    foreach ($customer_sources as $source) {
+                                        printf(
+                                            '<option value="%s" %s>%s</option>',
+                                            esc_attr($source->id),
+                                            selected($editing->customer_source_id, $source->id, false),
+                                            esc_html($source->name)
+                                        );
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label for="company_name" class="form-label">Tên công ty</label>
-                    <input type="text" class="form-control" id="company_name" name="company_name" value="<?php echo esc_attr($editing->company_name); ?>">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="tax_code" class="form-label">Mã số thuế</label>
-                    <input type="text" class="form-control" id="tax_code" name="tax_code" value="<?php echo esc_attr($editing->tax_code); ?>">
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" name="email" value="<?php echo esc_attr($editing->email); ?>">
-                </div>
-                <div class="col-12 mb-3">
-                    <label for="address" class="form-label">Địa chỉ</label>
-                    <textarea class="form-control" id="address" name="address" rows="3"><?php echo esc_textarea($editing->address); ?></textarea>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <label for="company_name" class="form-label">Tên công ty</label>
+                            <input type="text" class="form-control" id="company_name" name="company_name" value="<?php echo esc_attr($editing->company_name); ?>">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="tax_code" class="form-label">Mã số thuế</label>
+                            <input type="text" class="form-control" id="tax_code" name="tax_code" value="<?php echo esc_attr($editing->tax_code); ?>">
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" value="<?php echo esc_attr($editing->email); ?>">
+                        </div>
+                    </div>
                 </div>
                 <!-- Phone Numbers Section -->
                 <div class="col-12 mb-3">
@@ -88,25 +144,29 @@ ob_start();
                         if (!empty($existing_phones)) {
                             foreach ($existing_phones as $index => $phone) {
                                 $is_primary_checked = checked($phone->is_primary, 1, false);
+                                echo '<div class="phone-input-wrapper">';
                                 echo '<div class="input-group mb-2">';
                                 echo '<input type="hidden" name="phone_numbers[' . $index . '][id]" value="' . esc_attr($phone->id) . '">';
-                                echo '<input type="text" class="form-control" name="phone_numbers[' . $index . '][number]" placeholder="Số điện thoại" value="' . esc_attr($phone->phone_number) . '">';
+                                echo '<input type="text" class="form-control aerp-phone-input" name="phone_numbers[' . $index . '][number]" placeholder="Số điện thoại" value="' . esc_attr($phone->phone_number) . '" required>';
                                 echo '<div class="input-group-text">';
                                 echo '<input type="checkbox" name="phone_numbers[' . $index . '][primary]" value="1" ' . $is_primary_checked . '> &nbsp; Chính';
                                 echo '</div>';
                                 echo '<input type="text" class="form-control" name="phone_numbers[' . $index . '][note]" placeholder="Ghi chú" value="' . esc_attr($phone->note) . '">';
                                 echo '<button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>';
                                 echo '</div>';
+                                echo '</div>';
                             }
                         } else {
                             // Display at least one empty field if no phones exist
+                            echo '<div class="phone-input-wrapper">';
                             echo '<div class="input-group mb-2">';
-                            echo '<input type="text" class="form-control" name="phone_numbers[0][number]" placeholder="Số điện thoại">';
+                            echo '<input type="text" class="form-control aerp-phone-input" name="phone_numbers[0][number]" placeholder="Số điện thoại" required>';
                             echo '<div class="input-group-text">';
                             echo '<input type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính';
                             echo '</div>';
                             echo '<input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">';
                             echo '<button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>';
+                            echo '</div>';
                             echo '</div>';
                         }
                         ?>
@@ -137,15 +197,13 @@ ob_start();
                 <div class="col-md-6 mb-3">
                     <label for="customer_type_id" class="form-label">Loại khách hàng</label>
                     <select class="form-select" id="customer_type_id" name="customer_type_id">
-                        <option value="">-- Chọn loại khách hàng --</option>
                         <?php
                         $customer_types = aerp_get_customer_types();
-                        foreach ($customer_types as $type) {
-                            printf('<option value="%s"%s>%s</option>', esc_attr($type->id), selected($editing->customer_type_id, $type->id, false), esc_html($type->name));
-                        }
+                        aerp_safe_select_options($customer_types, $editing->customer_type_id, 'id', 'name', true);
                         ?>
                     </select>
                 </div>
+
                 <div class="col-md-6 mb-3">
                     <label for="status" class="form-label">Trạng thái</label>
                     <select class="form-select" id="status" name="status">
@@ -187,29 +245,29 @@ ob_start();
     </div>
 </div>
 <script>
-    $(".employee-select").select2({
-        placeholder: "Chọn nhân viên",
-        allowClear: true,
-        ajax: {
-            url: aerp_order_ajax.ajaxurl,
-            dataType: "json",
-            delay: 250,
-            data: function(params) {
-                return {
-                    action: "aerp_get_users_by_work_location",
-                    work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
-                    q: params.term,
-                };
-            },
-            processResults: function(data) {
-                return {
-                    results: data
-                };
-            },
-            cache: true,
-        },
-        minimumInputLength: 0,
-    });
+    // $(".employee-select").select2({
+    //     placeholder: "Chọn nhân viên",
+    //     allowClear: true,
+    //     ajax: {
+    //         url: aerp_order_ajax.ajaxurl,
+    //         dataType: "json",
+    //         delay: 250,
+    //         data: function(params) {
+    //             return {
+    //                 action: "aerp_get_users_by_work_location",
+    //                 work_location_id: 0, // Sẽ filter theo branch của user hiện tại trong backend
+    //                 q: params.term,
+    //             };
+    //         },
+    //         processResults: function(data) {
+    //             return {
+    //                 results: data
+    //             };
+    //         },
+    //         cache: true,
+    //     },
+    //     minimumInputLength: 0,
+    // });
 </script>
 <?php
 $content = ob_get_clean();

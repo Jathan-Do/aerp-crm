@@ -57,11 +57,13 @@ function aerp_crm_init()
     require_once AERP_CRM_PATH . 'includes/table/class-table-customer.php';
     require_once AERP_CRM_PATH . 'includes/table/class-table-customer-logs.php';
     require_once AERP_CRM_PATH . 'includes/table/class-table-customer-type.php';
+    require_once AERP_CRM_PATH . 'includes/table/class-table-customer-source.php';
 
     // Load các class cần thiết manager
     $includes = [
         'class-frontend-customer-manager.php',
         'class-frontend-customer-type-manager.php',
+        'class-frontend-customer-source-manager.php',
     ];
     foreach ($includes as $file) {
         require_once AERP_CRM_PATH . 'includes/managers/' . $file;
@@ -71,6 +73,7 @@ function aerp_crm_init()
     $managers = [
         'AERP_Frontend_Customer_Manager',
         'AERP_Frontend_Customer_Type_Manager',
+        'AERP_Frontend_Customer_Source_Manager',
     ];
     foreach ($managers as $manager) {
         if (method_exists($manager, 'handle_submit')) {
@@ -116,6 +119,7 @@ add_action('wp_enqueue_scripts', function () {
             wp_localize_script('aerp-crm-customer-form', 'aerp_crm_ajax', array(
                 'ajaxurl' => admin_url('admin-ajax.php'),
                 '_wpnonce_delete_attachment' => wp_create_nonce('aerp_delete_attachment_nonce'),
+                '_wpnonce_check_phone' => wp_create_nonce('aerp_crm_check_phone'),
             ));
 
             // Enqueue and localize aerp-frontend-table.js for CRM customer table

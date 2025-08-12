@@ -66,7 +66,7 @@ if ($message) {
                         <?php
                         $type = aerp_get_customer_type($customer->customer_type_id);
                         if ($type) {
-                            echo '<span class="badge bg-' . esc_attr($type->color) . '">' . esc_html($type->name) . '</span>';
+                            echo '<span class="badge" style="background-color: ' . esc_attr($type->color) . ';">' . esc_html($type->name) . '</span>';
                         } else {
                             echo '<span class="badge bg-secondary">Không xác định</span>';
                         }
@@ -82,23 +82,41 @@ if ($message) {
                                 <?php echo esc_html($customer->email); ?>
                             </a>
                         <?php else : ?>
-                            <span class="text-muted">N/A</span>
+                            <span class="badge bg-secondary">Không xác định</span>
                         <?php endif; ?>
                     </p>
                 </div>
                 <div class="col-6 mb-3">
                     <label class="fw-bold form-label text-muted small mb-1">Tên công ty</label>
-                    <p class="mb-0"><?php echo esc_html($customer->company_name); ?></p>
+                    <p class="mb-0">
+                        <?php if (!empty($customer->company_name)) : ?>
+                            <?php echo esc_html($customer->company_name); ?>
+                        <?php else : ?>
+                            <span class="badge bg-secondary">Không xác định</span>
+                        <?php endif; ?>
+                    </p>
                 </div>
 
                 <div class="col-6 mb-3">
                     <label class="fw-bold form-label text-muted small mb-1">Mã số thuế</label>
-                    <p class="mb-0"><?php echo esc_html($customer->tax_code); ?></p>
+                    <p class="mb-0">
+                        <?php if (!empty($customer->tax_code)) : ?>
+                            <?php echo esc_html($customer->tax_code); ?>
+                        <?php else : ?>
+                            <span class="badge bg-secondary">Không xác định</span>
+                        <?php endif; ?>
+                    </p>
                 </div>
 
                 <div class="col-6 mb-3">
                     <label class="fw-bold form-label text-muted small mb-1">Địa chỉ</label>
-                    <p class="mb-0"><?php echo esc_html($customer->address); ?></p>
+                    <p class="mb-0">
+                        <?php if (!empty($customer->address)) : ?>
+                            <?php echo esc_html($customer->address); ?>
+                        <?php else : ?>
+                            <span class="badge bg-secondary">Không xác định</span>
+                        <?php endif; ?>
+                    </p>
                 </div>
 
                 <div class="col-6 mb-3">
@@ -106,7 +124,7 @@ if ($message) {
                     <p class="mb-0">
                         <?php
                         if (empty($customer->assigned_to)) {
-                            echo 'Chưa được phân công';
+                            echo '<span class="badge bg-secondary">Chưa được phân công</span>';
                         } else {
                             echo esc_html(aerp_get_customer_assigned_name($customer->assigned_to));
                         }
@@ -255,7 +273,7 @@ if ($message) {
                     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                         <h6 class="mb-0">Lịch sử đơn hàng</h6>
                         <div class="d-flex gap-2 flex-column flex-md-row">
-                            <a href="<?php echo esc_url(home_url('/aerp-order-orders/?action=add')); ?>" class="btn btn-primary">
+                            <a href="<?php echo esc_url(home_url('/aerp-order-orders/?action=add&customer_id=' . $customer->id)); ?>" class="btn btn-primary">
                                 <i class="fas fa-plus"></i> Tạo đơn hàng
                             </a>
                         </div>

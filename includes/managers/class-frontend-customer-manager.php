@@ -41,6 +41,7 @@ class AERP_Frontend_Customer_Manager
         $address = sanitize_textarea_field($_POST['address']);
         $email = sanitize_email($_POST['email']);
         $customer_type_id = isset($_POST['customer_type_id']) ? absint($_POST['customer_type_id']) : 0;
+        $customer_source_id = isset($_POST['customer_source_id']) ? absint($_POST['customer_source_id']) : 0;
         $status = sanitize_text_field($_POST['status']);
         $assigned_to = absint($_POST['assigned_to']);
         $note = sanitize_textarea_field($_POST['note']);
@@ -53,6 +54,7 @@ class AERP_Frontend_Customer_Manager
             'address' => $address,
             'email' => $email,
             'customer_type_id' => $customer_type_id,
+            'customer_source_id' => $customer_source_id,
             'status' => $status,
             'assigned_to' => $assigned_to,
             'note' => $note,
@@ -66,13 +68,14 @@ class AERP_Frontend_Customer_Manager
             '%s', // address
             '%s', // email
             '%d', // customer_type_id
+            '%d', // customer_source_id
             '%s', // status
             '%d', // assigned_to
             '%s', // note
         ];
 
         if ($id) {
-            // Update existing customer
+            // Update existing customer (do NOT change created_by)
             $wpdb->update(
                 $table,
                 $data,
@@ -83,8 +86,15 @@ class AERP_Frontend_Customer_Manager
             $customer_id = $id;
             $msg = 'Đã cập nhật khách hàng!';
         } else {
-            // Insert new customer
+            // Insert new customer (set created_by)
+            $user_id = get_current_user_id();
+            $employee_id = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}aerp_hrm_employees WHERE user_id = %d",
+                $user_id
+            ));
+            $data['created_by'] = $employee_id;
             $data['created_at'] = (new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh')))->format('Y-m-d H:i:s');
+            $format[] = '%d'; // created_by
             $format[] = '%s'; // created_at
             $wpdb->insert($table, $data, $format);
             $customer_id = $wpdb->insert_id; // Get the ID of the newly inserted customer
@@ -102,6 +112,7 @@ class AERP_Frontend_Customer_Manager
                 ));
 
                 $submitted_phone_ids = [];
+                $phone_numbers_to_check = [];
 
                 // Reset all existing primary flags for this customer first (before processing new/updated ones)
                 $wpdb->update(
@@ -112,13 +123,76 @@ class AERP_Frontend_Customer_Manager
                     ['%d']
                 );
 
+                // Helper: validate VN phone
+                $validate_vn_phone = function ($value) {
+                    $value = preg_replace('/\D+/', '', (string)$value);
+                    if ($value === '') return false;
+                    if (str_starts_with($value, '84') && strlen($value) === 11) {
+                        $value = '0' . substr($value, 2);
+                    }
+                    return (bool)preg_match('/^0(?:3[2-9]|5[689]|7[06-9]|8(?:[1-5]|8|9)|9(?:[0-4]|[6-9]))\d{7}$/', $value);
+                };
+
+                // First, collect all phone numbers to check for duplicates and validate format
                 foreach ($_POST['phone_numbers'] as $phone_data) {
-                    $phone_number = sanitize_text_field($phone_data['number'] ?? '');
+                    $raw_phone_number = sanitize_text_field($phone_data['number'] ?? '');
+                    $normalized = preg_replace('/\D+/', '', $raw_phone_number);
+                    if ($normalized !== '') {
+                        // Validate VN phone format
+                        if (! $validate_vn_phone($normalized)) {
+                            // Rollback and error
+                            if (! $id) {
+                                $wpdb->delete($table, ['id' => $customer_id], ['%d']);
+                            }
+                            set_transient('aerp_customer_message', 'Số điện thoại không hợp lệ theo chuẩn Việt Nam.', 10);
+                            wp_redirect(wp_get_referer() ?: home_url('/aerp-crm-customers'));
+                            exit;
+                        }
+                        $phone_numbers_to_check[] = $normalized;
+                    }
+                }
+                // Nếu không có số điện thoại hợp lệ nào, rollback và báo lỗi
+                if (empty($phone_numbers_to_check)) {
+                    if (! $id) {
+                        $wpdb->delete($table, ['id' => $customer_id], ['%d']);
+                    }
+                    set_transient('aerp_customer_message', 'Bạn phải nhập ít nhất 1 số điện thoại hợp lệ.', 10);
+                    wp_redirect(wp_get_referer() ?: home_url('/aerp-crm-customers'));
+                    exit;
+                }
+
+                // Check for duplicate phone numbers (excluding current customer's phones)
+                $duplicate_phones = self::check_duplicate_phone_numbers($phone_numbers_to_check, $customer_id);
+                if (!empty($duplicate_phones)) {
+                    // Rollback customer creation if this is a new customer
+                    if (!$id) {
+                        $wpdb->delete($table, ['id' => $customer_id], ['%d']);
+                    }
+                    $duplicate_list = implode(', ', $duplicate_phones);
+                    set_transient('aerp_customer_message', "Số điện thoại sau đã tồn tại: {$duplicate_list}", 10);
+                    wp_redirect(wp_get_referer() ?: home_url('/aerp-crm-customers'));
+                    exit;
+                }
+
+                foreach ($_POST['phone_numbers'] as $phone_data) {
+                    $raw_phone_number = sanitize_text_field($phone_data['number'] ?? '');
+                    // Normalize: keep digits only
+                    $phone_number = preg_replace('/\D+/', '', $raw_phone_number);
                     $phone_note = sanitize_textarea_field($phone_data['note'] ?? '');
                     $is_primary = isset($phone_data['primary']) ? 1 : 0;
                     $phone_id = absint($phone_data['id'] ?? 0); // Hidden ID for existing phones
 
                     if (!empty($phone_number)) {
+                        // As safety, reject here again if invalid
+                        if (!$validate_vn_phone($phone_number)) {
+                            if (!$id) {
+                                $wpdb->delete($table, ['id' => $customer_id], ['%d']);
+                            }
+                            set_transient('aerp_customer_message', 'Số điện thoại không hợp lệ theo chuẩn Việt Nam.', 10);
+                            wp_redirect(wp_get_referer() ?: home_url('/aerp-crm-customers'));
+                            exit;
+                        }
+
                         $phone_table = $wpdb->prefix . 'aerp_crm_customer_phones';
                         $phone_insert_data = [
                             'customer_id' => $customer_id,
@@ -393,5 +467,57 @@ class AERP_Frontend_Customer_Manager
         // Xóa cache bảng sau khi thêm/sửa
         aerp_clear_table_cache();
         return (bool) $deleted;
+    }
+
+    /**
+     * Kiểm tra số điện thoại trùng lặp
+     * @param array $phone_numbers Mảng các số điện thoại cần kiểm tra
+     * @param int $exclude_customer_id ID khách hàng cần loại trừ (khi edit)
+     * @return array Mảng các số điện thoại trùng lặp
+     */
+    public static function check_duplicate_phone_numbers($phone_numbers, $exclude_customer_id = 0)
+    {
+        global $wpdb;
+        $duplicates = [];
+
+        if (empty($phone_numbers)) {
+            return $duplicates;
+        }
+
+        // Normalize input list to digits-only and unique
+        $normalized = [];
+        foreach ($phone_numbers as $num) {
+            $clean = preg_replace('/\D+/', '', (string) $num);
+            if ($clean !== '') {
+                $normalized[] = $clean;
+            }
+        }
+        $normalized = array_values(array_unique($normalized));
+
+        if (empty($normalized)) {
+            return $duplicates;
+        }
+
+        // Build placeholders for IN clause
+        $placeholders = implode(',', array_fill(0, count($normalized), '%s'));
+
+        // Normalize phone_number in SQL by stripping common separators before comparing
+        $normalized_sql = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_number,' ',''),'-',''),'.',''),'(',''),')',''),'+',''),'/','')";
+
+        $query = "SELECT DISTINCT $normalized_sql AS normalized_phone FROM {$wpdb->prefix}aerp_crm_customer_phones WHERE $normalized_sql IN ($placeholders)";
+
+        // Exclude current customer if requested
+        if ($exclude_customer_id > 0) {
+            $query .= $wpdb->prepare(" AND customer_id != %d", $exclude_customer_id);
+        }
+
+        $existing_phones = $wpdb->get_col($wpdb->prepare($query, $normalized));
+
+        // Find duplicates within the submitted list itself
+        $input_duplicates = array_values(array_unique(array_diff_assoc($normalized, array_unique($normalized))));
+
+        $duplicates = array_merge($existing_phones ?: [], $input_duplicates);
+
+        return array_values(array_unique($duplicates));
     }
 }

@@ -11,6 +11,7 @@ function aerp_crm_get_table_names()
         $wpdb->prefix . 'aerp_crm_customers',
         $wpdb->prefix . 'aerp_crm_customer_types',
         $wpdb->prefix . 'aerp_crm_customer_phones',
+        $wpdb->prefix . 'aerp_crm_customer_sources',
         $wpdb->prefix . 'aerp_crm_logs',
         $wpdb->prefix . 'aerp_crm_attachments',
     ];
@@ -33,16 +34,20 @@ function aerp_crm_install_schema()
         address TEXT,
         email VARCHAR(255),
         customer_type_id BIGINT,
+        customer_source_id BIGINT,
         status ENUM('active','inactive') DEFAULT 'active',
         assigned_to BIGINT,
         note TEXT,
+        created_by BIGINT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_customer_code (customer_code),
         INDEX idx_full_name (full_name),
         INDEX idx_company_name (company_name),
         INDEX idx_customer_type_id (customer_type_id),
+        INDEX idx_customer_source_id (customer_source_id),
         INDEX idx_status (status),
         INDEX idx_assigned_to (assigned_to),
+        INDEX idx_created_by (created_by),
         INDEX idx_created_at (created_at)
     ) $charset_collate;";
 
@@ -58,6 +63,18 @@ function aerp_crm_install_schema()
         INDEX idx_name (name)
     ) $charset_collate;";
 
+    // 1.2. Nguồn khách hàng
+    $sqls[] = "CREATE TABLE {$wpdb->prefix}aerp_crm_customer_sources (
+        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+        source_key VARCHAR(50) UNIQUE,
+        name VARCHAR(255),
+        description TEXT,
+        color VARCHAR(20),
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_source_key (source_key),
+        INDEX idx_name (name)
+    ) $charset_collate;";
+
     // 2. Số điện thoại khách hàng
     $sqls[] = "CREATE TABLE {$wpdb->prefix}aerp_crm_customer_phones (
         id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -67,7 +84,8 @@ function aerp_crm_install_schema()
         note VARCHAR(255),
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_customer_id (customer_id),
-        INDEX idx_phone_number (phone_number)
+        INDEX idx_phone_number (phone_number),
+        UNIQUE KEY unique_phone_number (phone_number)
     ) $charset_collate;";
 
     // 3. Tương tác

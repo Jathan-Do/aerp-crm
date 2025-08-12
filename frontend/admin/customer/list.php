@@ -3,10 +3,22 @@
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
 
-// Check if user is logged in and has admin capabilities
-if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
+if (!is_user_logged_in()) {
+    wp_die(__('You must be logged in to access this page.'));
+}
+
+// Danh sách điều kiện, chỉ cần 1 cái đúng là qua
+$access_conditions = [
+    aerp_user_has_role($user_id, 'admin'),
+    aerp_user_has_role($user_id, 'department_lead'),
+    aerp_user_has_permission($user_id, 'customer_view'),
+    aerp_user_has_permission($user_id, 'customer_view_full'),
+];
+
+if (!in_array(true, $access_conditions, true)) {
     wp_die(__('You do not have sufficient permissions to access this page.'));
 }
+
 // Process bulk actions
 $table = new AERP_Frontend_Customer_Table(); // We will create this class next
 $table->process_bulk_action();
@@ -52,6 +64,9 @@ ob_start();
             <a href="<?php echo esc_url(home_url('/aerp-crm-customer-types')); ?>" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Thêm mới loại khách hàng
             </a>
+            <a href="<?php echo esc_url(home_url('/aerp-crm-customer-sources')); ?>" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Thêm mới nguồn khách hàng
+            </a>
             <a href="<?php echo esc_url(home_url('/aerp-crm-customers/?action=add')); ?>" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Thêm mới khách hàng
             </a>
@@ -61,12 +76,21 @@ ob_start();
 
         <!-- Filter Form -->
         <form id="aerp-customer-filter-form" class="row g-2 mb-3 aerp-table-ajax-form" data-table-wrapper="#aerp-customer-table-wrapper" data-ajax-action="aerp_crm_filter_customers">
-            <div class="col-12 col-md-2 mb-2">
+            <!-- <div class="col-12 col-md-2 mb-2">
                 <label for="filter-customer-type" class="form-label mb-1">Loại khách hàng</label>
                 <select id="filter-customer-type" name="customer_type_id" class="form-select">
                     <?php
                     $types = aerp_get_customer_types();
                     aerp_safe_select_options($types, '', 'id', 'name', true);
+                    ?>
+                </select>
+            </div> -->
+            <div class="col-12 col-md-2 mb-2">
+                <label for="filter-customer-source" class="form-label mb-1">Nguồn khách hàng</label>
+                <select id="filter-customer-source" name="customer_source_id" class="form-select">
+                    <?php
+                    $customer_sources = aerp_get_customer_sources();
+                    aerp_safe_select_options($customer_sources, '', 'id', 'name', true);
                     ?>
                 </select>
             </div>
@@ -107,7 +131,7 @@ ob_start();
     </div>
 </div>
 
-<script>
+<!-- <script>
     $(".employee-select").select2({
         placeholder: "Chọn nhân viên",
         allowClear: true,
@@ -131,7 +155,7 @@ ob_start();
         },
         minimumInputLength: 0,
     });
-</script>
+</script> -->
 <?php
 $content = ob_get_clean();
 $title = 'Quản lý khách hàng';
