@@ -65,19 +65,8 @@ ob_start();
                 </form>
 
                 <!-- Nút xem 12 tháng gần nhất -->
-                <a href="?month=" class="btn btn-outline-secondary">12 tháng gần nhất</a>
+                <a href="?month=" class="btn btn-outline-primary">12 tháng gần nhất</a>
             </div>
-            <div>
-                <!-- Nút xuất Excel -->
-                <form method="post" action="<?= admin_url('admin-post.php') ?>" style="display: inline;">
-                    <?php wp_nonce_field('aerp_export_excel', 'aerp_export_nonce'); ?>
-                    <input type="hidden" name="action" value="aerp_export_excel_common">
-                    <input type="hidden" name="callback" value="aerp_dashboard_export">
-                    <input type="hidden" name="report_month" value="<?= esc_attr($month) ?>" id="report-month-hidden">
-                    <button type="submit" name="aerp_export_excel" class="btn btn-success">📥 Xuất Excel</button>
-                </form>
-            </div>
-
         </div>
     </div>
     <?php if ($crm_active): ?>
@@ -474,33 +463,6 @@ ob_start();
                         <?php else: ?>
                             <canvas id="customerSourceChart"></canvas>
                         <?php endif; ?>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="chart-container card">
-                        <h5><i class="fas fa-chart-pie"></i> Phân bố khách hàng
-                            <?php if (!empty($selected_month)): ?>
-                                (<?= date('m/Y', strtotime($selected_month)) ?>)
-                            <?php else: ?>
-                                (12 tháng gần nhất)
-                            <?php endif; ?>
-                        </h5>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <div class="metric-item">
-                                    <div class="metric-value text-primary"><?= number_format($returning_customers) ?></div>
-                                    <div class="metric-label">Khách hàng quay lại</div>
-                                    <small class="text-muted">(≥2 đơn)</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="metric-item">
-                                    <div class="metric-value text-success"><?= number_format($new_customers_with_orders) ?></div>
-                                    <div class="metric-label">Khách hàng mới</div>
-                                    <small class="text-muted">(1 đơn)</small>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

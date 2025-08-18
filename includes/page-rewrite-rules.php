@@ -1,8 +1,6 @@
 <?php
 // === REWRITE RULES FOR FRONTEND DASHBOARD ===
 add_action('init', function () {
-
-
     add_rewrite_rule('^aerp-crm-dashboard/?$', 'index.php?aerp_crm_dashboard=1', 'top');
     add_rewrite_rule('^aerp-categories/?$', 'index.php?aerp_categories=1', 'top');
     add_rewrite_rule('^aerp-crm-customers/?$', 'index.php?aerp_crm_page=customers', 'top');
