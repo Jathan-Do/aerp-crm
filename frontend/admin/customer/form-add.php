@@ -80,7 +80,15 @@ ob_start();
         </a>
     </div>
 </div>
-
+<?php
+if (function_exists('aerp_render_breadcrumb')) {
+    aerp_render_breadcrumb([
+        ['label' => 'Trang chủ', 'url' => home_url('/aerp-dashboard'), 'icon' => 'fas fa-home'],
+        ['label' => 'Quản lý khách hàng', 'url' => home_url('/aerp-crm-customers')],
+        ['label' => 'Thêm khách hàng mới']
+    ]);
+}
+?>
 <div class="card">
     <div class="card-body">
         <form class="aerp-customer-form" method="post" enctype="multipart/form-data">

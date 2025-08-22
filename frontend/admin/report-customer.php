@@ -43,7 +43,7 @@ $user_warehouse_ids = array_map(function ($w) {
 ob_start();
 ?>
 <div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
-    <h2>Báo cáo Tổng</h2>
+    <h2>Báo cáo tổng quan khách hàng</h2>
     <div class="user-info text-end">
         Welcome, <?php echo esc_html($current_user->display_name); ?>
         <a href="<?php echo wp_logout_url(site_url('/aerp-dang-nhap')); ?>" class="btn btn-sm btn-outline-danger ms-2">
@@ -361,8 +361,6 @@ ob_start();
         }
         ?>
         <section class="dashboard-section mb-5">
-            <h2><i class="fas fa-user-friends"></i> Báo cáo khách hàng</h2>
-
             <div class="row mb-4">
                 <div class="col-md-3">
                     <div class="summary-card card">
@@ -589,7 +587,7 @@ ob_start();
                                         },
                                         anchor: 'top',
                                         align: 'top',
-                                        offset: 50,
+                                        offset: 0,
                                         formatter: function(value) {
                                             return value > 0 ? value : '';
                                         }
@@ -637,7 +635,7 @@ ob_start();
                                         },
                                         anchor: 'top',
                                         align: 'top',
-                                        offset: 50,
+                                        offset: 0,
                                         formatter: function(value) {
                                             return value > 0 ? value : '';
                                         }

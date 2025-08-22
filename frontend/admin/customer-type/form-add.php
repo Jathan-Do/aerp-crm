@@ -31,6 +31,16 @@ ob_start();
         </a>
     </div>
 </div>
+<?php
+if (function_exists('aerp_render_breadcrumb')) {
+    aerp_render_breadcrumb([
+        ['label' => 'Trang chủ', 'url' => home_url('/aerp-dashboard'), 'icon' => 'fas fa-home'],
+        ['label' => 'Quản lý khách hàng', 'url' => home_url('/aerp-crm-customers')],
+        ['label' => 'Quản lý loại khách hàng', 'url' => home_url('/aerp-crm-customer-types')],
+        ['label' => 'Thêm loại khách hàng mới']
+    ]);
+}
+?>
 <?php $message = get_transient('aerp_customer_type_message');
 if ($message) {
     echo '<div class="alert alert-success alert-dismissible fade show" role="alert">'

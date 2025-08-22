@@ -28,7 +28,16 @@ ob_start();
         </a>
     </div>
 </div>
-
+<?php
+if (function_exists('aerp_render_breadcrumb')) {
+    aerp_render_breadcrumb([
+        ['label' => 'Trang chủ', 'url' => home_url('/aerp-dashboard'), 'icon' => 'fas fa-home'],
+        ['label' => 'Quản lý khách hàng', 'url' => home_url('/aerp-crm-customers')],
+        ['label' => 'Thông tin chi tiết khách hàng', 'url' => home_url('/aerp-crm-customers/' . $customer_id)],
+        ['label' => 'Lịch sử tương tác của khách hàng']
+    ]);
+}
+?>
 <div class="card shadow-sm">
     <div class="card-body">
         <!-- Filter Form -->

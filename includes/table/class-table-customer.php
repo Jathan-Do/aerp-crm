@@ -26,7 +26,7 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
                 'note' => 'Ghi chú',
                 'action' => 'Thao tác',
             ],
-            'sortable_columns' => ['full_name', 'status', 'customer_type_id', 'created_at'],
+            'sortable_columns' => ['id', 'full_name', 'status', 'customer_type_id', 'created_at'],
             'searchable_columns' => ['full_name', 'company_name'],
             'primary_key' => 'id',
             'per_page' => 10,
@@ -229,7 +229,7 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
         $out = [];
         foreach ($phones as $phone) {
             $str = '<a href="tel:' . esc_attr($phone->phone_number) . '">' . esc_html($phone->phone_number) . '</a>';
-            $str .= ' <a href="#" class="copy-phone ms-1" data-phone="' . esc_attr($phone->phone_number) . '" title="Copy"><i class="fas fa-copy"></i></a>';
+            $str .= ' <a href="#" class="copy-phone ms-1" data-phone="' . esc_attr($phone->phone_number) . '" title="Copy"><i class="fas fa-clipboard"></i></a>';
             if ($phone->is_primary) $str .= ' <span class="badge bg-success">Chính</span>';
             $out[] = $str;
         }
@@ -256,19 +256,19 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
         $delete_url = wp_nonce_url(add_query_arg(['action' => 'delete', 'id' => $customer_id], $this->base_url), $this->nonce_action_prefix . $customer_id);
 
         $edit_btn = sprintf(
-            '<a href="%s" class="btn btn-sm btn-success mb-2 mb-md-0"><i class="fas fa-edit"></i></a>',
+            '<a data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Chỉnh sửa" href="%s" class="btn btn-sm btn-success mb-2 mb-md-0"><i class="fas fa-edit"></i></a>',
             esc_url($edit_url)
         );
 
         if ($has_orders) {
             // Nếu có đơn hàng, disable nút xóa
             $delete_btn = sprintf(
-                '<button class="btn btn-sm btn-danger disabled" title="Không thể xóa khách hàng đang có đơn hàng"><i class="fas fa-trash"></i></button>'
+                '<button class="btn btn-sm btn-danger disabled" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Không thể xóa khách hàng đang có đơn hàng"><i class="fas fa-trash"></i></button>'
             );
         } else {
             // Nếu không có đơn hàng, cho phép xóa
             $delete_btn = sprintf(
-                '<a href="%s" class="btn btn-sm btn-danger" onclick="return confirm(\'Bạn có chắc muốn xóa khách hàng này?\')"><i class="fas fa-trash"></i></a>',
+                '<a data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Xóa" href="%s" class="btn btn-sm btn-danger" onclick="return confirm(\'Bạn có chắc muốn xóa khách hàng này?\')"><i class="fas fa-trash"></i></a>',
                 esc_url($delete_url)
             );
         }

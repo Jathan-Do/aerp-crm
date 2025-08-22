@@ -10,13 +10,12 @@ class AERP_Frontend_Customer_Source_Table extends AERP_Frontend_Table
         parent::__construct([
             'table_name' => $GLOBALS['wpdb']->prefix . 'aerp_crm_customer_sources',
             'columns' => [
-                'id' => 'ID',
+                // 'id' => 'ID',
                 'source_key' => 'Mã nguồn',
                 'name' => 'Tên nguồn',
                 'description' => 'Mô tả',
                 'color' => 'Màu sắc',
                 'created_at' => 'Ngày tạo',
-                'action' => 'Thao tác',
             ],
             'sortable_columns' => ['id', 'source_key', 'name', 'created_at'],
             'searchable_columns' => ['source_key', 'name'],

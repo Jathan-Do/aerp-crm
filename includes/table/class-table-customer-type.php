@@ -12,7 +12,7 @@ class AERP_Frontend_Customer_Type_Table extends AERP_Frontend_Table
         parent::__construct([
             'table_name' => $GLOBALS['wpdb']->prefix . 'aerp_crm_customer_types',
             'columns' => [
-                'id' => 'ID',
+                // 'id' => 'ID',
                 'type_key' => 'Mã loại',
                 'name' => 'Tên loại',
                 'description' => 'Mô tả',
