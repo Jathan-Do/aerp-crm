@@ -47,6 +47,7 @@ ob_start();
         padding: 6px 12px !important;
         background: #fff !important;
         font-size: 1rem !important;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -91,7 +92,7 @@ if (function_exists('aerp_render_breadcrumb')) {
         <form id="aerp-customer-source-filter-form" class="row g-2 mb-3 aerp-table-ajax-form" data-table-wrapper="#aerp-customer-source-table-wrapper" data-ajax-action="aerp_crm_filter_customers_source">
             <div class="col-12 col-md-3 mb-2">
                 <label for="filter-color" class="form-label mb-1">Màu sắc</label>
-                <select id="filter-color" name="color" class="form-select color-select">
+                <select id="filter-color" name="color" class="form-select shadow-sm color-select">
                     <option value="">Tất cả màu</option>
                     <?php
                     if (!empty($colors)) {

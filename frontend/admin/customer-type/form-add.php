@@ -55,21 +55,21 @@ if ($message) {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="type_key" class="form-label">Mã loại</label>
-                    <input type="text" class="form-control" id="type_key" name="type_key" required>
+                    <input type="text" class="form-control shadow-sm" id="type_key" name="type_key" required>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="name" class="form-label">Tên loại</label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                    <input type="text" class="form-control shadow-sm" id="name" name="name" required>
                 </div>
 
                 <div class="col-md-6 mb-3">
                     <label for="color" class="form-label">Màu sắc</label>
-                    <input type="color" class="form-control form-control-color" id="color" name="color" value="#007bff">
+                    <input type="color" class="form-control shadow-sm form-control-color" id="color" name="color" value="#007bff">
                     <div class="form-text">Màu sắc để phân biệt</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="description" class="form-label">Mô tả</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    <textarea class="form-control shadow-sm" id="description" name="description" rows="3"></textarea>
                 </div>
             </div>
             <div class="d-flex gap-2">

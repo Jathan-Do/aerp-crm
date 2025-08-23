@@ -229,7 +229,7 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
         $out = [];
         foreach ($phones as $phone) {
             $str = '<a href="tel:' . esc_attr($phone->phone_number) . '">' . esc_html($phone->phone_number) . '</a>';
-            $str .= ' <a href="#" class="copy-phone ms-1" data-phone="' . esc_attr($phone->phone_number) . '" title="Copy"><i class="fas fa-clipboard"></i></a>';
+            $str .= ' <a href="#" class="copy-phone ms-1" data-phone="' . esc_attr($phone->phone_number) . '" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Copy"><i class="fas fa-clipboard"></i></a>';
             if ($phone->is_primary) $str .= ' <span class="badge bg-success">Chính</span>';
             $out[] = $str;
         }

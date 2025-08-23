@@ -259,7 +259,7 @@ if ($message) {
                         <input type="hidden" name="customer_id" value="<?php echo esc_attr($customer->id); ?>">
                         <div class="mb-3">
                             <label for="interaction_type" class="form-label">Loại tương tác</label>
-                            <select class="form-select" id="interaction_type" name="interaction_type" required>
+                            <select class="form-select shadow-sm" id="interaction_type" name="interaction_type" required>
                                 <option value="">-- Chọn loại tương tác --</option>
                                 <option value="Cuộc gọi">Cuộc gọi</option>
                                 <option value="Email">Email</option>
@@ -270,7 +270,7 @@ if ($message) {
                         </div>
                         <div class="mb-3">
                             <label for="interaction_content" class="form-label">Nội dung</label>
-                            <textarea class="form-control" id="interaction_content" name="content" rows="3" required></textarea>
+                            <textarea class="form-control shadow-sm" id="interaction_content" name="content" rows="3" required></textarea>
                         </div>
                         <button type="submit" name="aerp_add_customer_log" class="btn btn-primary">Ghi nhận tương tác</button>
                     </form>

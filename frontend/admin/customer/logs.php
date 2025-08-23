@@ -45,7 +45,7 @@ if (function_exists('aerp_render_breadcrumb')) {
             <input type="hidden" name="customer_id" value="<?php echo esc_attr($customer_id); ?>">
             <div class="col-12 col-md-2 mb-2">
                 <label for="filter-interaction-type" class="form-label mb-1">Loại tương tác</label>
-                <select id="filter-interaction-type" name="interaction_type" class="form-select">
+                <select id="filter-interaction-type" name="interaction_type" class="form-select shadow-sm">
                     <?php
                     $types = aerp_get_customer_interaction_types($customer->id);
                     aerp_safe_select_options($types, '', 'interaction_type', 'interaction_type', true);

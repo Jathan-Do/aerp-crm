@@ -56,7 +56,7 @@ ob_start();
         <div class="d-flex flex-column flex-md-row gap-2 align-items-md-center">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <label class="fw-bold" for="month">Tháng:</label>
-                <input class="form-control w-auto" type="month" id="month" name="month" value="<?= esc_attr($month) ?>" max="<?= date('Y-m') ?>">
+                <input class="form-control shadow-sm w-auto" type="month" id="month" name="month" value="<?= esc_attr($month) ?>" max="<?= date('Y-m') ?>">
 
                 <!-- Form xem báo cáo -->
                 <form method="get" style="display: inline;">

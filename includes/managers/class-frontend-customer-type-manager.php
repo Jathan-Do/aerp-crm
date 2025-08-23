@@ -38,7 +38,7 @@ class AERP_Frontend_Customer_Type_Manager
             'type_key' => $type_key,
             'name' => sanitize_text_field($_POST['name']),
             'description' => sanitize_textarea_field($_POST['description']),
-            'color' => sanitize_text_field($_POST['color']),
+            'color' => sanitize_hex_color($_POST['color']),
         ];
         if ($id) {
             $wpdb->update($table, $data, ['id' => $id]);

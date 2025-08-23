@@ -53,14 +53,15 @@ class AERP_Frontend_Customer_Source_Table extends AERP_Frontend_Table
 
     protected function column_color($item)
     {
-        if (!empty($item->color)) {
-            return sprintf(
-                '<span class="badge" style="background-color: %s; color: white;">%s</span>',
-                esc_attr($item->color),
-                esc_html($item->color)
-            );
-        }
-        return '<span class="text-muted">--</span>';
+        $color = $item->color ?? '#007cba';
+        return sprintf(
+            '<div class="d-flex align-items-center">
+                <div class="color-preview me-2" style="width: 20px; height: 20px; background-color: %s; border-radius: 4px; border: 1px solid #ddd;"></div>
+                <span>%s</span>
+            </div>',
+            esc_attr($color),
+            esc_html($color)
+        );
     }
 
 }

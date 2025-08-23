@@ -29,6 +29,7 @@ ob_start();
         padding: 6px 12px !important;
         background: #fff !important;
         font-size: 1rem !important;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075) !important;
     }
 
     .select2-container--default .select2-selection--single .select2-selection__rendered {
@@ -97,15 +98,15 @@ if (function_exists('aerp_render_breadcrumb')) {
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label for="full_name" class="form-label">Họ và tên</label>
-                            <input type="text" class="form-control" id="full_name" name="full_name" value="<?php echo esc_attr($editing->full_name); ?>" required>
+                            <input type="text" class="form-control shadow-sm" id="full_name" name="full_name" value="<?php echo esc_attr($editing->full_name); ?>" required>
                         </div>
                         <div class="col-12 mb-3">
                             <label for="address" class="form-label">Địa chỉ</label>
-                            <textarea class="form-control" id="address" name="address" rows="1"><?php echo esc_textarea($editing->address); ?></textarea>
+                            <textarea class="form-control shadow-sm" id="address" name="address" rows="1"><?php echo esc_textarea($editing->address); ?></textarea>
                         </div>
                         <div class="col-12 mb-3">
                             <label for="customer_source_id" class="form-label">Nguồn khách hàng</label>
-                            <select class="form-select" id="customer_source_id" name="customer_source_id">
+                            <select class="form-select shadow-sm" id="customer_source_id" name="customer_source_id">
                                 <option value="">-- Chọn nguồn --</option>
                                 <?php
                                 $customer_sources = aerp_get_customer_sources();
@@ -128,17 +129,17 @@ if (function_exists('aerp_render_breadcrumb')) {
                     <div class="row">
                         <div class="col-12 mb-3">
                             <label for="company_name" class="form-label">Tên công ty</label>
-                            <input type="text" class="form-control" id="company_name" name="company_name" value="<?php echo esc_attr($editing->company_name); ?>">
+                            <input type="text" class="form-control shadow-sm" id="company_name" name="company_name" value="<?php echo esc_attr($editing->company_name); ?>">
                         </div>
 
                         <div class="col-12 mb-3">
                             <label for="tax_code" class="form-label">Mã số thuế</label>
-                            <input type="text" class="form-control" id="tax_code" name="tax_code" value="<?php echo esc_attr($editing->tax_code); ?>">
+                            <input type="text" class="form-control shadow-sm" id="tax_code" name="tax_code" value="<?php echo esc_attr($editing->tax_code); ?>">
                         </div>
 
                         <div class="col-12 mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" value="<?php echo esc_attr($editing->email); ?>">
+                            <input type="email" class="form-control shadow-sm" id="email" name="email" value="<?php echo esc_attr($editing->email); ?>">
                         </div>
                     </div>
                 </div>
@@ -155,11 +156,11 @@ if (function_exists('aerp_render_breadcrumb')) {
                                 echo '<div class="phone-input-wrapper">';
                                 echo '<div class="input-group mb-2">';
                                 echo '<input type="hidden" name="phone_numbers[' . $index . '][id]" value="' . esc_attr($phone->id) . '">';
-                                echo '<input type="text" class="form-control aerp-phone-input" name="phone_numbers[' . $index . '][number]" placeholder="Số điện thoại" value="' . esc_attr($phone->phone_number) . '" required>';
+                                echo '<input type="text" class="form-control shadow-sm aerp-phone-input" name="phone_numbers[' . $index . '][number]" placeholder="Số điện thoại" value="' . esc_attr($phone->phone_number) . '" required>';
                                 echo '<div class="input-group-text">';
                                 echo '<input type="checkbox" name="phone_numbers[' . $index . '][primary]" value="1" ' . $is_primary_checked . '> &nbsp; Chính';
                                 echo '</div>';
-                                echo '<input type="text" class="form-control" name="phone_numbers[' . $index . '][note]" placeholder="Ghi chú" value="' . esc_attr($phone->note) . '">';
+                                echo '<input type="text" class="form-control shadow-sm" name="phone_numbers[' . $index . '][note]" placeholder="Ghi chú" value="' . esc_attr($phone->note) . '">';
                                 echo '<button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>';
                                 echo '</div>';
                                 echo '</div>';
@@ -168,11 +169,11 @@ if (function_exists('aerp_render_breadcrumb')) {
                             // Display at least one empty field if no phones exist
                             echo '<div class="phone-input-wrapper">';
                             echo '<div class="input-group mb-2">';
-                            echo '<input type="text" class="form-control aerp-phone-input" name="phone_numbers[0][number]" placeholder="Số điện thoại" required>';
+                            echo '<input type="text" class="form-control shadow-sm aerp-phone-input" name="phone_numbers[0][number]" placeholder="Số điện thoại" required>';
                             echo '<div class="input-group-text">';
                             echo '<input type="checkbox" name="phone_numbers[0][primary]" value="1"> &nbsp; Chính';
                             echo '</div>';
-                            echo '<input type="text" class="form-control" name="phone_numbers[0][note]" placeholder="Ghi chú">';
+                            echo '<input type="text" class="form-control shadow-sm" name="phone_numbers[0][note]" placeholder="Ghi chú">';
                             echo '<button type="button" class="btn btn-outline-danger remove-phone-field">Xóa</button>';
                             echo '</div>';
                             echo '</div>';
@@ -185,7 +186,7 @@ if (function_exists('aerp_render_breadcrumb')) {
                 <!-- Attachments Section -->
                 <div class="col-md-6 mb-3 overflow-hidden">
                     <label for="attachments" class="form-label">File đính kèm</label>
-                    <input type="file" class="form-control" id="attachments" name="attachments[]" multiple>
+                    <input type="file" class="form-control shadow-sm" id="attachments" name="attachments[]" multiple>
                     <div id="existing-attachments-container" class="mt-2">
                         <?php
                         // Fetch existing attachments for the customer
@@ -204,7 +205,7 @@ if (function_exists('aerp_render_breadcrumb')) {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="customer_type_id" class="form-label">Loại khách hàng</label>
-                    <select class="form-select" id="customer_type_id" name="customer_type_id">
+                    <select class="form-select shadow-sm" id="customer_type_id" name="customer_type_id">
                         <?php
                         $customer_types = aerp_get_customer_types();
                         aerp_safe_select_options($customer_types, $editing->customer_type_id, 'id', 'name', true);
@@ -214,14 +215,14 @@ if (function_exists('aerp_render_breadcrumb')) {
 
                 <div class="col-md-6 mb-3">
                     <label for="status" class="form-label">Trạng thái</label>
-                    <select class="form-select" id="status" name="status">
+                    <select class="form-select shadow-sm" id="status" name="status">
                         <option value="active" <?php selected($editing->status, 'active'); ?>>Hoạt động</option>
                         <option value="inactive" <?php selected($editing->status, 'inactive'); ?>>Không hoạt động</option>
                     </select>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="assigned_to" class="form-label">Người phụ trách</label>
-                    <select class="form-select employee-select" id="assigned_to" name="assigned_to">
+                    <select class="form-select shadow-sm employee-select" id="assigned_to" name="assigned_to">
                         <option value="">-- Chọn nhân viên --</option>
                         <?php
                         $employees = aerp_get_employees_with_location(); // Lấy danh sách nhân viên
@@ -242,7 +243,7 @@ if (function_exists('aerp_render_breadcrumb')) {
                 </div>
                 <div class="col-12 mb-3">
                     <label for="note" class="form-label">Ghi chú</label>
-                    <textarea class="form-control" id="note" name="note" rows="3"><?php echo esc_textarea($editing->note); ?></textarea>
+                    <textarea class="form-control shadow-sm" id="note" name="note" rows="3"><?php echo esc_textarea($editing->note); ?></textarea>
                 </div>
             </div>
             <div class="d-flex gap-2">

@@ -50,22 +50,22 @@ if (function_exists('aerp_render_breadcrumb')) {
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="source_key" class="form-label">Mã nguồn <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="source_key" name="source_key" required>
+                    <input type="text" class="form-control shadow-sm" id="source_key" name="source_key" required>
                     <div class="form-text">Mã duy nhất để định danh nguồn (ví dụ: fb, zalo, web)</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="name" class="form-label">Tên nguồn <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="name" name="name" required>
+                    <input type="text" class="form-control shadow-sm" id="name" name="name" required>
                     <div class="form-text">Tên hiển thị của nguồn (ví dụ: Facebook, Zalo, Website)</div>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="color" class="form-label">Màu sắc</label>
-                    <input type="color" class="form-control form-control-color" id="color" name="color" value="#007bff">
+                    <input type="color" class="form-control shadow-sm form-control-color" id="color" name="color" value="#007bff">
                     <div class="form-text">Màu sắc để phân biệt nguồn</div>
                 </div>
-                <div class="col-12 mb-3">
+                <div class="col-md-6 mb-3">
                     <label for="description" class="form-label">Mô tả</label>
-                    <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    <textarea class="form-control shadow-sm" id="description" name="description" rows="3"></textarea>
                 </div>
             </div>
             <div class="d-flex gap-2">

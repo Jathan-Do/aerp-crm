@@ -27,7 +27,7 @@ class AERP_Frontend_Customer_Source_Manager
             'source_key' => sanitize_text_field($_POST['source_key']),
             'name' => sanitize_text_field($_POST['name']),
             'description' => sanitize_textarea_field($_POST['description']),
-            'color' => sanitize_text_field($_POST['color']),
+            'color' => sanitize_hex_color($_POST['color']),
         ];
 
         if ($id) {
