@@ -111,11 +111,7 @@ if (function_exists('aerp_render_breadcrumb')) {
             </div>
             <div class="col-12 col-md-2 mb-2">
                 <label for="filter-assigned-to" class="form-label mb-1">Nhân viên phụ trách</label>
-                <select id="filter-assigned-to" name="assigned_to" class="form-select shadow-sm employee-select">
-                    <?php
-                    $employees = aerp_get_assigned_employees();
-                    aerp_safe_select_options($employees, '', 'user_id', 'full_name', true);
-                    ?>
+                <select id="filter-assigned-to" name="assigned_to" class="form-select shadow-sm <?php echo aerp_user_has_role($user_id, 'admin') ? 'employee-select-all' : 'employee-select'; ?>">
                 </select>
             </div>
             <div class="col-12 col-md-1 d-flex align-items-end mb-2">
