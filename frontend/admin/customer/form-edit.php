@@ -222,7 +222,7 @@ if (function_exists('aerp_render_breadcrumb')) {
                 </div>
                 <div class="col-md-6 mb-3">
                     <label for="assigned_to" class="form-label">Người phụ trách</label>
-                    <select class="form-select shadow-sm employee-select" id="assigned_to" name="assigned_to">
+                    <select class="form-select shadow-sm <?php echo aerp_user_has_role($user_id, 'admin') ? 'employee-select-all' : 'employee-select'; ?>" id="assigned_to" name="assigned_to">
                         <option value="">-- Chọn nhân viên --</option>
                         <?php
                         $employees = aerp_get_employees_with_location(); // Lấy danh sách nhân viên
