@@ -87,43 +87,48 @@ class AERP_Frontend_Customer_Table extends AERP_Frontend_Table
             $filters[] = "assigned_to = %d";
             $params[] = (int)$this->filters['assigned_to'];
         } else {
-            // 2) Mặc định giới hạn theo chi nhánh của user hiện tại
-            //    - Nếu có quyền xem full (customer_view_full|crm_view_full|order_view_full) => xem toàn chi nhánh
-            //    - Ngược lại chỉ xem khách hàng do chính nhân viên (gắn với user hiện tại) phụ trách
-            //    - Luôn bao gồm khách hàng CHƯA được gán nhân viên (assigned_to IS NULL hoặc 0)
+            // Nếu là admin thì được xem hết
             $current_user_id = get_current_user_id();
-            $current_user_employee = $wpdb->get_row($wpdb->prepare(
-                "SELECT id, work_location_id FROM {$wpdb->prefix}aerp_hrm_employees WHERE user_id = %d",
-                $current_user_id
-            ));
+            if (function_exists('aerp_user_has_role') && aerp_user_has_role($current_user_id, 'admin')) {
+                // Không thêm filter nào, admin xem tất cả
+            } else {
+                // 2) Mặc định giới hạn theo chi nhánh của user hiện tại
+                //    - Nếu có quyền xem full (customer_view_full|crm_view_full|order_view_full) => xem toàn chi nhánh
+                //    - Ngược lại chỉ xem khách hàng do chính nhân viên (gắn với user hiện tại) phụ trách
+                //    - Luôn bao gồm khách hàng CHƯA được gán nhân viên (assigned_to IS NULL hoặc 0)
+                $current_user_employee = $wpdb->get_row($wpdb->prepare(
+                    "SELECT id, work_location_id FROM {$wpdb->prefix}aerp_hrm_employees WHERE user_id = %d",
+                    $current_user_id
+                ));
 
-            if ($current_user_employee) {
-                $can_view_branch = (
-                    function_exists('aerp_user_has_permission') && (
-                        aerp_user_has_permission($current_user_id, 'customer_view_full')
-                    )
-                );
+                if ($current_user_employee) {
+                    $can_view_branch = (
+                        function_exists('aerp_user_has_permission') && (
+                            aerp_user_has_permission($current_user_id, 'customer_view_full')
+                        )
+                    );
 
-                if ($can_view_branch && !empty($current_user_employee->work_location_id)) {
-                    // Lấy toàn bộ nhân viên trong chi nhánh
-                    $branch_employee_ids = $wpdb->get_col($wpdb->prepare(
-                        "SELECT id FROM {$wpdb->prefix}aerp_hrm_employees WHERE work_location_id = %d",
-                        $current_user_employee->work_location_id
-                    ));
-                    if (!empty($branch_employee_ids)) {
-                        $placeholders = implode(',', array_fill(0, count($branch_employee_ids), '%d'));
-                        // Bao gồm cả khách hàng chưa được gán (NULL hoặc 0)
-                        $filters[] = "(assigned_to IN ($placeholders) OR assigned_to IS NULL OR assigned_to = 0)";
-                        $params = array_merge($params, $branch_employee_ids);
+                    if ($can_view_branch && !empty($current_user_employee->work_location_id)) {
+                        // Lấy toàn bộ nhân viên trong chi nhánh
+                        $branch_employee_ids = $wpdb->get_col($wpdb->prepare(
+                            "SELECT id FROM {$wpdb->prefix}aerp_hrm_employees WHERE work_location_id = %d",
+                            $current_user_employee->work_location_id
+                        ));
+                        if (!empty($branch_employee_ids)) {
+                            $placeholders = implode(',', array_fill(0, count($branch_employee_ids), '%d'));
+                            // Bao gồm cả khách hàng chưa được gán (NULL hoặc 0)
+                            $filters[] = "(assigned_to IN ($placeholders) OR assigned_to IS NULL OR assigned_to = 0)";
+                            $params = array_merge($params, $branch_employee_ids);
+                        } else {
+                            // Không có nhân viên nào trong chi nhánh => chỉ hiển thị khách hàng chưa gán
+                            $filters[] = "(assigned_to IS NULL OR assigned_to = 0)";
+                        }
                     } else {
-                        // Không có nhân viên nào trong chi nhánh => chỉ hiển thị khách hàng chưa gán
-                        $filters[] = "(assigned_to IS NULL OR assigned_to = 0)";
+                        // Chỉ xem khách hàng do chính nhân viên hiện tại phụ trách + chưa gán
+                        $filters[] = "(assigned_to = %d OR created_by = %d OR assigned_to IS NULL OR assigned_to = 0)";
+                        $params[] = (int)$current_user_employee->id;
+                        $params[] = (int)$current_user_employee->id;
                     }
-                } else {
-                    // Chỉ xem khách hàng do chính nhân viên hiện tại phụ trách + chưa gán
-                    $filters[] = "(assigned_to = %d OR created_by = %d OR assigned_to IS NULL OR assigned_to = 0)";
-                    $params[] = (int)$current_user_employee->id;
-                    $params[] = (int)$current_user_employee->id;
                 }
             }
         }

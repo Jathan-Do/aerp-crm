@@ -14,11 +14,72 @@ function aerp_get_customers()
 }
 function aerp_get_customers_select2($q = '') {
     global $wpdb;
-    $sql = "SELECT * FROM {$wpdb->prefix}aerp_crm_customers WHERE 1=1";
+
+    $current_user_id = get_current_user_id();
+
+    $where_clauses = [];
+    $params = [];
+
+    // Search by name, code, or phone number like table extra search
     if ($q !== '') {
         $q_like = '%' . $wpdb->esc_like($q) . '%';
-        $sql .= $wpdb->prepare(" AND (full_name LIKE %s OR customer_code LIKE %s)", $q_like, $q_like);
+        $where_clauses[] = '(c.full_name LIKE %s OR c.customer_code LIKE %s OR c.id IN (SELECT customer_id FROM ' . $wpdb->prefix . 'aerp_crm_customer_phones WHERE phone_number LIKE %s))';
+        $params[] = $q_like;
+        $params[] = $q_like;
+        $params[] = $q_like;
     }
+
+    // Permission filtering mirrors AERP_Frontend_Customer_Table::get_extra_filters
+    $restricted_where = '';
+    $restricted_params = [];
+
+    // If not admin or no explicit assigned_to filter, apply branch/ownership restrictions
+    $is_admin = function_exists('aerp_user_has_role') && aerp_user_has_role($current_user_id, 'admin');
+    if (!$is_admin) {
+        $current_user_employee = $wpdb->get_row($wpdb->prepare(
+            "SELECT id, work_location_id FROM {$wpdb->prefix}aerp_hrm_employees WHERE user_id = %d",
+            $current_user_id
+        ));
+
+        if ($current_user_employee) {
+            $can_view_branch = (function_exists('aerp_user_has_permission') && aerp_user_has_permission($current_user_id, 'customer_view_full'));
+
+            if ($can_view_branch && !empty($current_user_employee->work_location_id)) {
+                $branch_employee_ids = $wpdb->get_col($wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}aerp_hrm_employees WHERE work_location_id = %d",
+                    $current_user_employee->work_location_id
+                ));
+                if (!empty($branch_employee_ids)) {
+                    $placeholders = implode(',', array_fill(0, count($branch_employee_ids), '%d'));
+                    $restricted_where = "(c.assigned_to IN ($placeholders) OR c.assigned_to IS NULL OR c.assigned_to = 0)";
+                    $restricted_params = array_merge($restricted_params, array_map('intval', $branch_employee_ids));
+                } else {
+                    $restricted_where = "(c.assigned_to IS NULL OR c.assigned_to = 0)";
+                }
+            } else {
+                $restricted_where = "(c.assigned_to = %d OR c.created_by = %d OR c.assigned_to IS NULL OR c.assigned_to = 0)";
+                $restricted_params[] = (int)$current_user_employee->id;
+                $restricted_params[] = (int)$current_user_employee->id;
+            }
+        }
+    }
+
+    if (!empty($restricted_where)) {
+        $where_clauses[] = $restricted_where;
+        $params = array_merge($params, $restricted_params);
+    }
+
+    $where_sql = 'WHERE 1=1';
+    if (!empty($where_clauses)) {
+        $where_sql .= ' AND ' . implode(' AND ', $where_clauses);
+    }
+
+    $sql = "SELECT c.* FROM {$wpdb->prefix}aerp_crm_customers c {$where_sql} ORDER BY c.full_name ASC";
+
+    if (!empty($params)) {
+        $sql = $wpdb->prepare($sql, $params);
+    }
+
     return $wpdb->get_results($sql);
 }
 /**
