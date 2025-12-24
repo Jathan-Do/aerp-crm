@@ -59,7 +59,7 @@ if ($message) {
             <div class="row mb-2">
                 <div class="col-6 mb-3">
                     <label class="fw-bold form-label text-muted small mb-1">Mã khách hàng</label>
-                    <p class="mb-0 fw-bold"><?php echo esc_html($customer->customer_code); ?><span class="badge bg-<?php echo ($customer->status === 'active') ? 'success' : 'secondary'; ?>">
+                    <p class="mb-0 fw-bold"><?php echo esc_html($customer->customer_code); ?><span class="ms-1 badge bg-<?php echo ($customer->status === 'active') ? 'success' : 'secondary'; ?>">
                             <?php echo esc_html($customer->status === 'active') ? 'Hoạt động' : 'Không hoạt động'; ?>
                         </span></p>
                 </div>

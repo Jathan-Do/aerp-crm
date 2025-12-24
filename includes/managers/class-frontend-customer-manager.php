@@ -22,18 +22,15 @@ class AERP_Frontend_Customer_Manager
 
         $id = isset($_POST['customer_id']) ? absint($_POST['customer_id']) : 0;
         $customer_id = 0; // Initialize customer_id
-        // Sinh mã khách hàng tự động nếu thêm mới
+        $is_new_customer = !$id;
+
+        // Sinh mã khách hàng tự động
         if ($id) {
             // Khi sửa giữ nguyên mã cũ
             $customer_code = $wpdb->get_var($wpdb->prepare("SELECT customer_code FROM $table WHERE id = %d", $id));
         } else {
-            $max_code = $wpdb->get_var("SELECT customer_code FROM $table WHERE customer_code LIKE 'KH-%' ORDER BY id DESC LIMIT 1");
-            if (preg_match('/KH-(\\d+)/', $max_code, $matches)) {
-                $next_number = intval($matches[1]) + 1;
-            } else {
-                $next_number = 1;
-            }
-            $customer_code = 'KH-' . $next_number;
+            // Khi thêm mới, sinh mã dạng KH-XXXXXXXX-ddmmyyyy (8 ký tự random + ngày), không trùng
+            $customer_code = self::generate_customer_code();
         }
         $full_name = sanitize_text_field($_POST['full_name']);
         $company_name = sanitize_text_field($_POST['company_name']);
@@ -98,6 +95,7 @@ class AERP_Frontend_Customer_Manager
             $format[] = '%s'; // created_at
             $wpdb->insert($table, $data, $format);
             $customer_id = $wpdb->insert_id; // Get the ID of the newly inserted customer
+
             $msg = 'Đã thêm khách hàng!';
         }
 
@@ -299,7 +297,7 @@ class AERP_Frontend_Customer_Manager
         // Xóa cache bảng sau khi thêm/sửa
         aerp_clear_table_cache();
         set_transient('aerp_customer_message', $msg, 10);
-        wp_redirect(home_url('/aerp-crm-customers'));
+        wp_redirect(home_url('/aerp-crm-customers/' . $customer_id));
         exit;
     }
 
@@ -519,5 +517,39 @@ class AERP_Frontend_Customer_Manager
         $duplicates = array_merge($existing_phones ?: [], $input_duplicates);
 
         return array_values(array_unique($duplicates));
+    }
+
+    /**
+     * Sinh mã khách hàng dạng KH-XXXXXXXX-ddmmyyyy
+     * - XXXXXXXX: 8 ký tự chữ + số ngẫu nhiên
+     * - ddmmyyyy: ngày hiện tại
+     * Đảm bảo không trùng trong CSDL.
+     */
+    private static function generate_customer_code()
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . 'aerp_crm_customers';
+
+        $characters = 'acdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $length = 8;
+
+        do {
+            $random = '';
+            for ($i = 0; $i < $length; $i++) {
+                $random .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+
+            $now = new DateTime('now', new DateTimeZone('Asia/Ho_Chi_Minh'));
+            $date_str = $now->format('dmY'); // ddmmyyyy
+            $code = 'KH-' . $random . '-' . $date_str;
+
+            // Kiểm tra trùng trong DB
+            $exists = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM $table WHERE customer_code = %s",
+                $code
+            ));
+        } while ($exists > 0);
+
+        return $code;
     }
 }
