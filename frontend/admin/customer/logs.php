@@ -5,6 +5,8 @@ if (!defined('ABSPATH')) {
 
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
+$employee = aerp_get_employee_by_user_id($user_id);
+$user_fullname = $employee ? $employee->full_name : '';
 
 // Check if user is logged in and has admin capabilities
 if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
@@ -19,12 +21,12 @@ $customer_logs_table = new AERP_Frontend_Customer_Logs_Table($customer_id);
 $customer_logs_table->process_bulk_action();
 ob_start();
 ?>
-<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
+<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-5">
     <h2 class="mb-0">Lịch sử tương tác của khách hàng: <?php echo esc_html($customer ? $customer->full_name : ''); ?> - <?php echo esc_html($customer ? $customer->customer_code : ''); ?></h2>
     <div class="user-info text-end">
-        <span class="me-2">Welcome, <?php echo esc_html($current_user->display_name); ?></span>
+        <span class="me-2">Hi, <?php echo esc_html($user_fullname); ?></span>
         <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-sm btn-outline-danger">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
         </a>
     </div>
 </div>

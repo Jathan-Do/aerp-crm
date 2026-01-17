@@ -2,6 +2,8 @@
 // Get current user
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
+$employee = aerp_get_employee_by_user_id($user_id);
+$user_fullname = $employee ? $employee->full_name : '';
 
 if (!is_user_logged_in()) {
     wp_die(__('You must be logged in to access this page.'));
@@ -60,12 +62,12 @@ ob_start();
         right: 0.75rem !important;
     }
 </style>
-<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
+<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-5">
     <h2>Quản lý nguồn khách hàng</h2>
     <div class="user-info text-end">
-        Welcome, <?php echo esc_html($current_user->display_name); ?>
+        Hi, <?php echo esc_html($user_fullname); ?>
         <a href="<?php echo wp_logout_url(site_url('/aerp-dang-nhap')); ?>" class="btn btn-sm btn-outline-danger ms-2">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
         </a>
     </div>
 </div>
@@ -82,14 +84,17 @@ if (function_exists('aerp_render_breadcrumb')) {
     <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
         <h5 class="mb-0">Danh sách nguồn khách hàng</h5>
         <div class="d-flex gap-2 flex-column flex-md-row">
-            <a href="<?php echo esc_url(home_url('/aerp-crm-customer-sources/?action=add')); ?>" class="btn btn-primary">
+            <a href="<?php echo esc_url(home_url('/aerp-crm-customer-sources/?action=add')); ?>"
+                class="btn btn-primary">
                 <i class="fas fa-plus"></i> Thêm mới nguồn
             </a>
         </div>
     </div>
     <div class="card-body">
         <!-- Filter Form -->
-        <form id="aerp-customer-source-filter-form" class="row g-2 mb-3 aerp-table-ajax-form" data-table-wrapper="#aerp-customer-source-table-wrapper" data-ajax-action="aerp_crm_filter_customers_source">
+        <form id="aerp-customer-source-filter-form" class="row g-2 mb-3 aerp-table-ajax-form"
+            data-table-wrapper="#aerp-customer-source-table-wrapper"
+            data-ajax-action="aerp_crm_filter_customers_source">
             <div class="col-12 col-md-3 mb-2">
                 <label for="filter-color" class="form-label mb-1">Màu sắc</label>
                 <select id="filter-color" name="color" class="form-select shadow-sm color-select">
@@ -119,14 +124,15 @@ if (function_exists('aerp_render_breadcrumb')) {
         <div id="aerp-customer-source-table-wrapper">
             <?php $table->render(); ?>
         </div>
-        <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary" style="width: fit-content;">
+        <a href="<?php echo home_url('/aerp-crm-customers'); ?>" class="btn btn-outline-secondary"
+            style="width: fit-content;">
             <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách
         </a>
     </div>
 </div>
 
 <script>
-    jQuery(function($) {
+    jQuery(function ($) {
         function formatColorOption(option) {
             if (!option.id) {
                 return option.text;
@@ -145,7 +151,7 @@ if (function_exists('aerp_render_breadcrumb')) {
                 width: '100%',
                 templateResult: formatColorOption,
                 templateSelection: formatColorOption,
-                escapeMarkup: function(markup) {
+                escapeMarkup: function (markup) {
                     return markup;
                 },
             });

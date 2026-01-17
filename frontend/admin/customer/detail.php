@@ -7,6 +7,8 @@ if (!function_exists('is_plugin_active')) {
 }
 $current_user = wp_get_current_user();
 $user_id = $current_user->ID;
+$employee = aerp_get_employee_by_user_id($user_id);
+$user_fullname = $employee ? $employee->full_name : '';
 // Check if user is logged in and has admin capabilities (adjust as needed for CRM roles)
 if (!is_user_logged_in() || !aerp_user_has_role($user_id, 'admin')) {
     wp_die(__('You do not have sufficient permissions to access this page.'));
@@ -20,12 +22,12 @@ if ($customer_id) {
 $order_active = function_exists('aerp_order_init') || is_plugin_active('aerp-order/aerp-order.php');
 ob_start();
 ?>
-<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-4">
+<div class="d-flex flex-column-reverse flex-md-row justify-content-between align-items-md-center mb-5">
     <h2 class="mb-0">Thông tin chi tiết khách hàng</h2>
     <div class="user-info text-end">
-        <span class="me-2">Welcome, <?php echo esc_html($current_user->display_name); ?></span>
+        <span class="me-2">Hi, <?php echo esc_html($user_fullname); ?></span>
         <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-sm btn-outline-danger">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
         </a>
     </div>
 </div>
